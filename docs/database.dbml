@@ -1,0 +1,118 @@
+// ============================================================
+// SubsOptimizer Database Schema
+// DBML (Database Markup Language) https://dbml.org/
+// ターゲット: MySQL 8.0 以上
+// 文字セット: utf8mb4 / 照合順序: utf8mb4_unicode_ci
+// ============================================================
+
+Project subscr_optimizer {
+  database_type: 'MySQL'
+  Note: '''
+    サブスクリプション最適化ツール SubsOptimizer のデータベーススキーマ。
+
+    ・文字セット  : utf8mb4（絵文字対応）
+    ・照合順序    : utf8mb4_unicode_ci
+    ・ストレージエンジン: InnoDB
+    ・タイムゾーン: +09:00（JST）推奨
+
+    users を削除すると sessions / reset_tokens / subscriptions が
+    ON DELETE CASCADE ですべて自動削除される（退会処理に対応）。
+  '''
+}
+
+// ============================================================
+// Enum 定義
+// ============================================================
+
+enum cycle_type {
+  monthly [note: '月額']
+  yearly  [note: '年額']
+}
+
+enum subscription_status {
+  active    [note: '有効']
+  cancelled [note: '解約済み']
+}
+
+// ============================================================
+// テーブル定義
+// ============================================================
+
+Table users [
+  headercolor: #3d85c8,
+  note: 'ユーザー。ゲストユーザーは email・password_hash が NULL、is_guest = 1 となる。'
+] {
+  id            int          [pk, increment, not null, note: 'ユーザーID（自動採番）']
+  email         varchar(255) [null,          note: 'メールアドレス。ゲストユーザーは NULL。']
+  password_hash varchar(255) [null,          note: 'bcrypt ハッシュ値。ゲストユーザーは NULL。']
+  is_guest      tinyint(1)   [not null, default: 0,   note: 'ゲストフラグ（1 = ゲスト）']
+  created_at    datetime     [not null, default: `CURRENT_TIMESTAMP`, note: '登録日時']
+
+  indexes {
+    email    [unique, name: 'uq_users_email',    note: 'NULL は重複を許容（ゲスト複数可）']
+    is_guest [        name: 'idx_users_is_guest', note: 'ゲスト一括削除バッチ用']
+  }
+}
+
+Table sessions [
+  headercolor: #6aa84f,
+  note: 'ログインセッション。有効期限は 30 日間。期限切れレコードは定期バッチで削除推奨。'
+] {
+  id         int         [pk, increment, not null, note: 'セッションID（自動採番）']
+  token      varchar(64) [not null, unique, note: 'Bearer トークン（random_bytes(32) の hex 文字列）']
+  user_id    int         [not null,        note: '紐づくユーザーID（FK → users.id）']
+  expires_at datetime    [not null,        note: 'トークンの有効期限（発行から 30 日後）']
+  created_at datetime    [not null, default: `CURRENT_TIMESTAMP`, note: '発行日時']
+
+  indexes {
+    token      [unique, name: 'uq_sessions_token',      note: 'トークンの一意性を保証']
+    user_id    [        name: 'idx_sessions_user_id',    note: 'ユーザー別セッション検索用']
+    expires_at [        name: 'idx_sessions_expires_at', note: '期限切れ一括削除バッチ用']
+  }
+}
+
+Table reset_tokens [
+  headercolor: #e69138,
+  note: 'パスワードリセットトークン。有効期限は 1 時間。user_id に UNIQUE 制約で 1 ユーザー 1 トークンを保証。'
+] {
+  id         int          [pk, increment, not null, note: 'リセットトークンID（自動採番）']
+  token      varchar(32)  [not null, unique, note: 'リセットトークン（random_bytes(16) の hex 文字列）']
+  user_id    int          [not null, unique, note: '紐づくユーザーID（FK → users.id）1ユーザー1トークン']
+  email      varchar(255) [not null,         note: 'リセット対象メールアドレス（申請時点のスナップショット）']
+  expires_at datetime     [not null,         note: 'トークンの有効期限（発行から 1 時間後）']
+  created_at datetime     [not null, default: `CURRENT_TIMESTAMP`, note: '発行日時']
+
+  indexes {
+    token      [unique, name: 'uq_reset_tokens_token',   note: 'トークンの一意性を保証']
+    user_id    [unique, name: 'uq_reset_tokens_user_id', note: '1ユーザーにつき有効トークンは1件']
+    expires_at [        name: 'idx_reset_tokens_expires_at', note: '期限切れ一括削除バッチ用']
+  }
+}
+
+Table subscriptions [
+  headercolor: #cc0000,
+  note: 'サブスクリプション。emoji カラムは 4 バイト文字を含むため utf8mb4 が必須。'
+] {
+  id                int                  [pk, increment, not null, note: 'サブスクID（自動採番）']
+  user_id           int                  [not null,                note: '所有ユーザーID（FK → users.id）']
+  name              varchar(100)         [not null,                note: 'サービス名（例: Netflix）']
+  emoji             varchar(10)          [null,                    note: 'アイコン絵文字（例: 🎬）utf8mb4 必須']
+  category          varchar(50)          [null,                    note: 'カテゴリ（例: 動画、音楽、AI）']
+  amount            int                  [not null,                note: '金額（円）。CHECK 制約で 1 以上を保証。']
+  cycle             cycle_type           [not null, default: 'monthly', note: '課金サイクル']
+  next_billing_date date                 [not null,                note: '次回決済日（YYYY-MM-DD）']
+  is_trial          tinyint(1)           [not null, default: 0,   note: 'トライアル中フラグ（1 = トライアル中）']
+  trial_end_date    date                 [null,                    note: 'トライアル終了日。is_trial = 1 の場合に使用。']
+  status            subscription_status  [not null, default: 'active', note: 'ステータス']
+  notes             text                 [null,                    note: '任意のメモ']
+  created_at        datetime             [not null, default: `CURRENT_TIMESTAMP`, note: '登録日時']
+  updated_at        datetime             [not null, default: `CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`, note: '最終更新日時']
+
+  indexes {
+    user_id                    [        name: 'idx_subscriptions_user_id',           note: 'ユーザー別一覧取得用（最重要）']
+    (user_id, status)          [        name: 'idx_subscriptions_user_status',       note: '有効サブスク絞り込み用']
+    next_billing_date          [        name: 'idx_subscriptions_next_billing_date', note: '更新日順ソート用']
+    (is_trial, trial_end_date) [        name: 'idx_subscriptions_trial',             note: 'トライアル期限切れアラート用']
+  }
+}
+
