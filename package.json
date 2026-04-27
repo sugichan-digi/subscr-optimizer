@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "docs": "npx @redocly/cli build-docs ./backend/openapi.yaml -o ./apidoc/index.html"
+  },
+  "dependencies": {
+    "redoc-cli": "^0.13.21"
+  }
+}
