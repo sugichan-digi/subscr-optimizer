@@ -1,0 +1,947 @@
+openapi: 3.0.3
+
+info:
+  title: SubsOptimizer API
+  version: 1.0.0
+  description: |
+    SubsOptimizer（サブスクリプション最適化ツール）のバックエンド API 仕様書です。
+
+    ## 認証について
+
+    `/subscriptions` 系エンドポイントと `/auth/logout`、`/auth/account` は
+    Bearer トークン認証が必要です。
+
+    ログイン・新規登録・ゲストログインのいずれかで取得したトークンを
+    リクエストの Authorization ヘッダーに付与してください。
+
+    ```
+    Authorization: Bearer {token}
+    ```
+
+    トークンの有効期限は **30日間** です。
+
+    ## 開発モードについて
+
+    本 API はモック実装です。データはサーバー上の JSON ファイルに保存されます。
+    `POST /auth/forgot-password` はメール送信を行わず、代わりにレスポンス内の
+    `dev_reset_token` フィールドにトークンを返します。
+    本番環境に移行する際はこのフィールドを削除し、メール送信処理を実装してください。
+
+servers:
+  - url: http://localhost:8080/api.php
+    description: ローカル開発サーバー（PHP ビルトインサーバー）
+
+tags:
+  - name: システム
+    description: サーバーの死活確認
+  - name: 認証
+    description: ユーザー登録・ログイン・パスワード管理・退会
+  - name: サブスクリプション
+    description: サブスクリプションの CRUD 操作（要認証）
+  - name: プリセット
+    description: サービスプリセット一覧（認証不要）
+
+# デフォルトは認証なし。各エンドポイントで security を個別指定する。
+security: []
+
+paths:
+
+  # ============================================================
+  # システム
+  # ============================================================
+
+  /health:
+    get:
+      tags: [システム]
+      summary: ヘルスチェック
+      description: サーバーが正常に動作しているか確認します。認証不要です。
+      operationId: getHealth
+      responses:
+        '200':
+          description: サーバーが正常に動作しています
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: サーバーの状態
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: サーバーの現在時刻（ISO 8601 形式）
+                    example: '2026-04-27T12:00:00+09:00'
+
+  # ============================================================
+  # 認証
+  # ============================================================
+
+  /auth/register:
+    post:
+      tags: [認証]
+      summary: 新規ユーザー登録
+      description: |
+        メールアドレスとパスワードで新規アカウントを作成します。
+        成功するとセッショントークンを即時発行するため、
+        登録後そのままログイン状態として扱えます。
+      operationId: authRegister
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              email: user@example.com
+              password: myPassword123
+      responses:
+        '201':
+          description: 登録成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                メールアドレス未入力:
+                  value:
+                    error: メールアドレスを入力してください
+                形式不正:
+                  value:
+                    error: メールアドレスの形式が正しくありません
+                パスワード短すぎ:
+                  value:
+                    error: パスワードは8文字以上で入力してください
+        '409':
+          description: メールアドレスが既に登録されている
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: このメールアドレスはすでに登録されています
+
+  /auth/login:
+    post:
+      tags: [認証]
+      summary: ログイン
+      description: |
+        メールアドレスとパスワードで認証し、セッショントークンを取得します。
+        取得したトークンは Authorization ヘッダー（Bearer 方式）で使用します。
+      operationId: authLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: user@example.com
+              password: myPassword123
+      responses:
+        '200':
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: バリデーションエラー（入力値が空など）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: メールアドレスを入力してください
+        '401':
+          description: 認証失敗（メールアドレスまたはパスワードが誤り）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: メールアドレスまたはパスワードが正しくありません
+
+  /auth/guest:
+    post:
+      tags: [認証]
+      summary: ゲストログイン
+      description: |
+        メールアドレス・パスワードなしでゲストアカウントを作成しログインします。
+        リクエストボディは不要です（空のオブジェクトでも可）。
+
+        **注意事項**:
+        - ゲストアカウントへの通常アカウント移行機能はありません
+        - 退会するとすべてのデータが削除されます
+        - ゲストユーザーの退会時はパスワード確認が不要です
+      operationId: authGuest
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+            example: {}
+      responses:
+        '201':
+          description: ゲストログイン成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              example:
+                token: a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2
+                user:
+                  id: 42
+                  email: null
+                  is_guest: true
+                  display_name: ゲスト
+
+  /auth/logout:
+    post:
+      tags: [認証]
+      summary: ログアウト
+      description: |
+        現在のセッションを無効化します。
+        Authorization ヘッダーのトークンを指定してください。
+        トークンが存在しない・すでに無効な場合でも成功として扱います。
+      operationId: authLogout
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: ログアウト成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+
+  /auth/forgot-password:
+    post:
+      tags: [認証]
+      summary: パスワードリセットトークンの発行
+      description: |
+        登録済みのメールアドレスに対してパスワードリセット用トークンを発行します。
+        トークンの有効期限は **1時間** です。
+
+        **セキュリティ**: メールアドレスが未登録の場合も同じレスポンスを返します
+        （ユーザー列挙攻撃への対策）。
+
+        **開発モード**: 実際のメール送信は行われず、レスポンスの `dev_reset_token`
+        フィールドにトークンが含まれます。
+        本番環境ではこのフィールドを削除し、メール送信処理を実装してください。
+      operationId: authForgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: パスワードをリセットしたいアカウントのメールアドレス
+                  example: user@example.com
+      responses:
+        '200':
+          description: |
+            トークン発行結果。メールアドレスが未登録の場合も同じ形式で返します。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: パスワードリセット用トークンを発行しました
+                  dev_reset_token:
+                    type: string
+                    nullable: true
+                    description: |
+                      【開発モード専用】発行されたリセットトークン。
+                      メールアドレスが未登録の場合は `null`。
+                      本番環境ではこのフィールドを返さないこと。
+                    example: a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4
+                  expires_in:
+                    type: string
+                    description: トークンの有効期限の目安
+                    example: 1時間
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: メールアドレスを入力してください
+
+  /auth/reset-password:
+    post:
+      tags: [認証]
+      summary: パスワードのリセット
+      description: |
+        発行済みのリセットトークンと新しいパスワードを使ってパスワードを更新します。
+        トークンは1回使用すると無効になります。
+      operationId: authResetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - password
+              properties:
+                token:
+                  type: string
+                  description: forgot-password で発行されたリセットトークン
+                  example: a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  description: 新しいパスワード（8文字以上）
+                  example: newPassword456
+      responses:
+        '200':
+          description: パスワードリセット成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+                message: パスワードをリセットしました
+        '400':
+          description: バリデーションエラーまたはトークンが無効・期限切れ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                トークンが無効:
+                  value:
+                    error: トークンが無効または期限切れです
+                パスワードが短すぎ:
+                  value:
+                    error: パスワードは8文字以上で入力してください
+
+  /auth/account:
+    delete:
+      tags: [認証]
+      summary: アカウント退会（全データ削除）
+      description: |
+        ログイン中のアカウントを退会・削除します。
+
+        **この操作は取り消せません。** 以下のデータがすべて削除されます：
+        - ユーザー情報
+        - 全セッション
+        - パスワードリセットトークン
+        - 登録済みサブスクリプションデータ
+
+        **ゲストユーザー**: `password` フィールドは不要です（空のボディでも可）。
+        **通常ユーザー**: 現在のパスワードが必須です。
+      operationId: authDeleteAccount
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  format: password
+                  description: |
+                    現在のパスワード。
+                    通常ユーザーは必須、ゲストユーザーは不要。
+                  example: currentPassword123
+      responses:
+        '200':
+          description: 退会成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+                message: 退会しました
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: ユーザーが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: ユーザーが見つかりません
+
+  # ============================================================
+  # サブスクリプション
+  # ============================================================
+
+  /subscriptions:
+    get:
+      tags: [サブスクリプション]
+      summary: サブスクリプション一覧の取得
+      description: |
+        ログイン中のユーザーに紐づくサブスクリプションの一覧を返します。
+        他ユーザーのデータにはアクセスできません。
+        サーバー側での並び替え・フィルタリングは行いません（クライアント側で処理）。
+      operationId: listSubscriptions
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: サブスクリプションの配列
+                    items:
+                      $ref: '#/components/schemas/Subscription'
+                  count:
+                    type: integer
+                    description: 取得件数
+                    example: 5
+              example:
+                data:
+                  - id: 1
+                    name: Netflix
+                    emoji: 🎬
+                    category: 動画
+                    amount: 1490
+                    cycle: monthly
+                    nextBillingDate: '2026-05-15'
+                    isTrial: false
+                    trialEndDate: null
+                    status: active
+                    notes: ''
+                count: 1
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags: [サブスクリプション]
+      summary: サブスクリプションの新規登録
+      description: |
+        新しいサブスクリプションを登録します。
+        `id` はサーバー側で自動採番されるため、リクエストボディに含める必要はありません。
+      operationId: createSubscription
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionInput'
+            example:
+              name: Spotify
+              emoji: 🎵
+              category: 音楽
+              amount: 980
+              cycle: monthly
+              nextBillingDate: '2026-05-20'
+              isTrial: false
+              trialEndDate: null
+              status: active
+              notes: ''
+      responses:
+        '201':
+          description: 登録成功。採番された id を含む登録後のデータを返します。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Subscription'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                サービス名なし:
+                  value:
+                    error: サービス名は必須です
+                金額不正:
+                  value:
+                    error: 金額は1以上の数値を入力してください
+                決済日なし:
+                  value:
+                    error: 次回決済日は必須です
+                cycle不正:
+                  value:
+                    error: cycleはmonthlyまたはyearlyを指定してください
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /subscriptions/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 操作対象のサブスクリプション ID
+        schema:
+          type: integer
+          minimum: 1
+          example: 3
+
+    put:
+      tags: [サブスクリプション]
+      summary: サブスクリプションの更新
+      description: |
+        指定した ID のサブスクリプションを全フィールド上書きで更新します。
+        部分更新（PATCH）は非対応です。すべてのフィールドを含めて送信してください。
+      operationId: updateSubscription
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionInput'
+            example:
+              name: Spotify
+              emoji: 🎵
+              category: 音楽
+              amount: 980
+              cycle: monthly
+              nextBillingDate: '2026-06-20'
+              isTrial: false
+              trialEndDate: null
+              status: active
+              notes: ファミリープラン
+      responses:
+        '200':
+          description: 更新成功。更新後のデータを返します。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Subscription'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [サブスクリプション]
+      summary: サブスクリプションの削除
+      description: |
+        指定した ID のサブスクリプションを完全に削除します。
+        この操作は取り消せません。
+      operationId: deleteSubscription
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 削除成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  id:
+                    type: integer
+                    description: 削除されたサブスクリプションの ID
+                    example: 3
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================================
+  # プリセット
+  # ============================================================
+
+  /presets:
+    get:
+      tags: [プリセット]
+      summary: プリセットサービス一覧の取得
+      description: |
+        サブスクリプション登録時に利用できるサービスのプリセット一覧を返します。
+        認証不要でアクセスできます。
+        金額は一般的な標準プランを基準にした参考値です。
+      operationId: listPresets
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    description: プリセットサービスの配列
+                    items:
+                      $ref: '#/components/schemas/Preset'
+              example:
+                data:
+                  - name: Netflix
+                    emoji: 🎬
+                    category: 動画
+                    amount: 1490
+                  - name: Spotify
+                    emoji: 🎵
+                    category: 音楽
+                    amount: 980
+                  - name: ChatGPT Plus
+                    emoji: 🤖
+                    category: AI
+                    amount: 3000
+
+# ============================================================
+# 共通コンポーネント定義
+# ============================================================
+
+components:
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        ログイン・新規登録・ゲストログインで取得したトークンを指定してください。
+
+        形式: `Authorization: Bearer {token}`
+
+  schemas:
+
+    # ---------- ユーザー ----------
+
+    User:
+      type: object
+      description: ユーザー情報
+      properties:
+        id:
+          type: integer
+          description: ユーザー ID
+          example: 1
+        email:
+          type: string
+          format: email
+          nullable: true
+          description: メールアドレス。ゲストユーザーは `null`。
+          example: user@example.com
+        is_guest:
+          type: boolean
+          description: ゲストユーザーかどうか
+          example: false
+        display_name:
+          type: string
+          nullable: true
+          description: 表示名。ゲストユーザーのみ `"ゲスト"` が設定される。
+          example: ゲスト
+
+    # ---------- 認証リクエスト ----------
+
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: メールアドレス（一意である必要があります）
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: パスワード（8文字以上）
+          example: myPassword123
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: 登録済みのメールアドレス
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          description: パスワード
+          example: myPassword123
+
+    # ---------- 認証レスポンス ----------
+
+    AuthResponse:
+      type: object
+      description: 認証成功時のレスポンス
+      properties:
+        token:
+          type: string
+          description: |
+            セッショントークン。有効期限は 30 日間。
+            以降のリクエストで `Authorization: Bearer {token}` として使用する。
+          example: a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2
+        user:
+          $ref: '#/components/schemas/User'
+
+    # ---------- サブスクリプション ----------
+
+    Subscription:
+      type: object
+      description: サブスクリプション情報（レスポンス用、id を含む）
+      properties:
+        id:
+          type: integer
+          description: サブスクリプション ID（サーバー側で自動採番）
+          example: 1
+        name:
+          type: string
+          description: サービス名
+          example: Netflix
+        emoji:
+          type: string
+          description: アイコンとして使用する絵文字
+          example: 🎬
+        category:
+          type: string
+          description: カテゴリ（例：動画、音楽、AI、仕事、開発など）
+          example: 動画
+        amount:
+          type: integer
+          description: 金額（円）
+          minimum: 1
+          example: 1490
+        cycle:
+          type: string
+          enum:
+            - monthly
+            - yearly
+          description: |
+            課金サイクル
+            - `monthly`: 月額
+            - `yearly`: 年額
+          example: monthly
+        nextBillingDate:
+          type: string
+          format: date
+          description: 次回決済日（YYYY-MM-DD 形式）
+          example: '2026-05-15'
+        isTrial:
+          type: boolean
+          description: 無料トライアル中かどうか
+          example: false
+        trialEndDate:
+          type: string
+          format: date
+          nullable: true
+          description: トライアル終了日（YYYY-MM-DD 形式）。`isTrial` が `true` の場合に使用。
+          example: '2026-04-29'
+        status:
+          type: string
+          enum:
+            - active
+            - cancelled
+          description: |
+            ステータス
+            - `active`: 有効
+            - `cancelled`: 解約済み
+          example: active
+        notes:
+          type: string
+          description: 任意のメモ
+          example: 家族プラン
+
+    SubscriptionInput:
+      type: object
+      description: サブスクリプション登録・更新時のリクエストボディ（`id` は不要）
+      required:
+        - name
+        - amount
+        - cycle
+        - nextBillingDate
+      properties:
+        name:
+          type: string
+          description: サービス名
+          example: Netflix
+        emoji:
+          type: string
+          description: アイコン絵文字
+          example: 🎬
+        category:
+          type: string
+          description: カテゴリ
+          example: 動画
+        amount:
+          type: integer
+          minimum: 1
+          description: 金額（円、1以上）
+          example: 1490
+        cycle:
+          type: string
+          enum:
+            - monthly
+            - yearly
+          description: 課金サイクル（`monthly` または `yearly`）
+          example: monthly
+        nextBillingDate:
+          type: string
+          format: date
+          description: 次回決済日（YYYY-MM-DD 形式）
+          example: '2026-05-15'
+        isTrial:
+          type: boolean
+          description: 無料トライアル中かどうか
+          default: false
+          example: false
+        trialEndDate:
+          type: string
+          format: date
+          nullable: true
+          description: トライアル終了日（`isTrial` が `true` の場合に必須）
+          example: '2026-04-29'
+        status:
+          type: string
+          enum:
+            - active
+            - cancelled
+          description: ステータス
+          default: active
+          example: active
+        notes:
+          type: string
+          description: 任意のメモ
+          example: 家族プラン
+
+    # ---------- プリセット ----------
+
+    Preset:
+      type: object
+      description: プリセットサービス情報
+      properties:
+        name:
+          type: string
+          description: サービス名
+          example: Netflix
+        emoji:
+          type: string
+          description: アイコン絵文字
+          example: 🎬
+        category:
+          type: string
+          description: カテゴリ
+          example: 動画
+        amount:
+          type: integer
+          description: 標準的な月額金額の参考値（円）
+          example: 1490
+
+    # ---------- 汎用レスポンス ----------
+
+    SuccessResponse:
+      type: object
+      description: 処理成功時の汎用レスポンス
+      properties:
+        success:
+          type: boolean
+          description: 成功かどうか
+          example: true
+        message:
+          type: string
+          description: 処理結果の説明
+          example: 退会しました
+
+    ErrorResponse:
+      type: object
+      description: エラー時のレスポンス
+      properties:
+        error:
+          type: string
+          description: エラーの説明
+          example: 指定されたIDが見つかりません
+
+  responses:
+
+    Unauthorized:
+      description: |
+        認証エラー。以下のいずれかの原因が考えられます：
+        - Authorization ヘッダーが存在しない
+        - トークンが無効
+        - トークンが期限切れ（有効期限 30 日）
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            トークンなし:
+              value:
+                error: 認証が必要です
+            無効または期限切れ:
+              value:
+                error: セッションが無効または期限切れです
+
+    NotFound:
+      description: 指定したリソースが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: 指定されたIDが見つかりません
+
+    ValidationError:
+      description: バリデーションエラー（入力値が不正）
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            サービス名なし:
+              value:
+                error: サービス名は必須です
+            金額不正:
+              value:
+                error: 金額は1以上の数値を入力してください
+            決済日なし:
+              value:
+                error: 次回決済日は必須です
+            cycle不正:
+              value:
+                error: cycleはmonthlyまたはyearlyを指定してください
