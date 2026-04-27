@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SubsOptimizer — ログイン</title>
+  <link rel="stylesheet" href="auth.css">
+</head>
+<body>
+
+  <div class="auth-bg">
+    <div class="auth-wrapper">
+
+      <!-- Logo -->
+      <div class="auth-logo">
+        <span class="auth-logo-icon">💳</span>
+        <span class="auth-logo-text">SubsOptimizer</span>
+      </div>
+
+      <!-- ===== Login ===== -->
+      <div id="view-login" class="auth-card">
+        <h1 class="auth-title">ログイン</h1>
+        <p class="auth-sub">アカウントにサインインしてください</p>
+
+        <div id="login-error" class="auth-msg auth-msg-error"></div>
+
+        <form id="form-login" novalidate>
+          <div class="field-group">
+            <label for="login-email">メールアドレス</label>
+            <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email">
+          </div>
+          <div class="field-group">
+            <label for="login-password">パスワード</label>
+            <div class="password-wrap">
+              <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+              <button type="button" class="toggle-pw" data-target="login-password" tabindex="-1">👁</button>
+            </div>
+          </div>
+          <button type="submit" class="btn-auth btn-auth-primary" id="btn-login">ログイン</button>
+        </form>
+
+        <div class="auth-divider"><span>または</span></div>
+        <button class="btn-auth btn-auth-guest" id="btn-guest">👤 ゲストとして始める</button>
+
+        <div class="auth-footer-links">
+          <a href="#" id="link-to-forgot">パスワードを忘れた方</a>
+          <span class="dot-sep">•</span>
+          <a href="#" id="link-to-register">新規登録</a>
+        </div>
+      </div>
+
+      <!-- ===== Register ===== -->
+      <div id="view-register" class="auth-card" hidden>
+        <h1 class="auth-title">アカウント作成</h1>
+        <p class="auth-sub">無料でお使いいただけます</p>
+
+        <div id="register-error" class="auth-msg auth-msg-error"></div>
+
+        <form id="form-register" novalidate>
+          <div class="field-group">
+            <label for="reg-email">メールアドレス</label>
+            <input type="email" id="reg-email" placeholder="your@email.com" autocomplete="email">
+          </div>
+          <div class="field-group">
+            <label for="reg-password">パスワード <span class="field-hint">（8文字以上）</span></label>
+            <div class="password-wrap">
+              <input type="password" id="reg-password" placeholder="••••••••" autocomplete="new-password">
+              <button type="button" class="toggle-pw" data-target="reg-password" tabindex="-1">👁</button>
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="reg-confirm">パスワード（確認）</label>
+            <div class="password-wrap">
+              <input type="password" id="reg-confirm" placeholder="••••••••" autocomplete="new-password">
+              <button type="button" class="toggle-pw" data-target="reg-confirm" tabindex="-1">👁</button>
+            </div>
+          </div>
+          <button type="submit" class="btn-auth btn-auth-primary" id="btn-register">アカウントを作成</button>
+        </form>
+
+        <div class="auth-footer-links">
+          <a href="#" id="link-to-login-from-reg">すでにアカウントをお持ちの方</a>
+        </div>
+      </div>
+
+      <!-- ===== Forgot Password ===== -->
+      <div id="view-forgot" class="auth-card" hidden>
+        <h1 class="auth-title">パスワードを忘れた</h1>
+        <p class="auth-sub">登録済みのメールアドレスを入力してください</p>
+
+        <div id="forgot-error"   class="auth-msg auth-msg-error"></div>
+        <div id="forgot-success" class="auth-msg auth-msg-success"></div>
+
+        <form id="form-forgot" novalidate>
+          <div class="field-group">
+            <label for="forgot-email">メールアドレス</label>
+            <input type="email" id="forgot-email" placeholder="your@email.com" autocomplete="email">
+          </div>
+          <button type="submit" class="btn-auth btn-auth-primary" id="btn-forgot">リセットトークンを発行</button>
+        </form>
+
+        <div class="auth-footer-links">
+          <a href="#" id="link-forgot-back">← ログインに戻る</a>
+        </div>
+      </div>
+
+      <!-- ===== Reset Password ===== -->
+      <div id="view-reset" class="auth-card" hidden>
+        <h1 class="auth-title">パスワードをリセット</h1>
+        <p class="auth-sub">トークンと新しいパスワードを入力してください</p>
+
+        <div id="reset-token-box" class="dev-token-box" hidden>
+          <span class="dev-label">【開発用】リセットトークン</span>
+          <code id="dev-token-display"></code>
+          <button type="button" id="btn-copy-token" class="btn-copy">コピー</button>
+        </div>
+
+        <div id="reset-error"   class="auth-msg auth-msg-error"></div>
+        <div id="reset-success" class="auth-msg auth-msg-success"></div>
+
+        <form id="form-reset" novalidate>
+          <div class="field-group">
+            <label for="reset-token">リセットトークン</label>
+            <input type="text" id="reset-token" placeholder="発行されたトークンを貼り付け" autocomplete="off">
+          </div>
+          <div class="field-group">
+            <label for="reset-password">新しいパスワード <span class="field-hint">（8文字以上）</span></label>
+            <div class="password-wrap">
+              <input type="password" id="reset-password" placeholder="••••••••" autocomplete="new-password">
+              <button type="button" class="toggle-pw" data-target="reset-password" tabindex="-1">👁</button>
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="reset-confirm">パスワード（確認）</label>
+            <div class="password-wrap">
+              <input type="password" id="reset-confirm" placeholder="••••••••" autocomplete="new-password">
+              <button type="button" class="toggle-pw" data-target="reset-confirm" tabindex="-1">👁</button>
+            </div>
+          </div>
+          <button type="submit" class="btn-auth btn-auth-primary" id="btn-reset">パスワードをリセット</button>
+        </form>
+
+        <div class="auth-footer-links">
+          <a href="#" id="link-reset-back">← ログインに戻る</a>
+        </div>
+      </div>
+
+    </div><!-- /auth-wrapper -->
+  </div><!-- /auth-bg -->
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="auth.js"></script>
+</body>
+</html>
