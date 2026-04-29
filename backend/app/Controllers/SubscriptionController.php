@@ -82,6 +82,26 @@ class SubscriptionController
     }
 
     /**
+     * 支払済み処理：次回決済日を自動更新。
+     */
+    public function pay(int $id): JsonResponse
+    {
+        $userId = $this->resolveAuthOrFail();
+
+        if ($userId instanceof JsonResponse) {
+            return $userId;
+        }
+
+        $result = $this->subscriptionService->pay($id, $userId);
+
+        if ($result === null) {
+            return response()->json(['error' => '指定されたIDが見つかりません'], 404);
+        }
+
+        return response()->json(['data' => $result]);
+    }
+
+    /**
      * サブスク削除。
      */
     public function destroy(int $id): JsonResponse

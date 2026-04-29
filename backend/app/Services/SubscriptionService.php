@@ -70,6 +70,31 @@ class SubscriptionService
     }
 
     /**
+     * 支払済み処理：次回決済日を cycle に応じて自動更新。
+     *
+     * @return array|null 更新後のデータ。ID 未存在の場合 null。
+     */
+    public function pay(int $id, int $userId): ?array
+    {
+        if ($this->subscriptionModel->findByIdAndUserId($id, $userId) === null) {
+            return null;
+        }
+
+        $result = null;
+
+        try {
+            DB::transaction(function () use ($id, $userId, &$result) {
+                $result = $this->subscriptionModel->advanceBillingDate($id, $userId);
+            });
+        } catch (\Throwable $e) {
+            Log::error('subscription pay 失敗', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            throw $e;
+        }
+
+        return $result;
+    }
+
+    /**
      * サブスク削除。
      *
      * @return bool 削除成功は true、ID 未存在は false。

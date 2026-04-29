@@ -19,10 +19,11 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::prefix('subscriptions')->group(function () {
-    Route::get('/',     [SubscriptionController::class, 'index']);
-    Route::post('/',    [SubscriptionController::class, 'store']);
-    Route::put('/{id}', [SubscriptionController::class, 'update']);
-    Route::delete('/{id}', [SubscriptionController::class, 'destroy']);
+    Route::get('/',          [SubscriptionController::class, 'index']);
+    Route::post('/',         [SubscriptionController::class, 'store']);
+    Route::put('/{id}',      [SubscriptionController::class, 'update']);
+    Route::delete('/{id}',   [SubscriptionController::class, 'destroy']);
+    Route::post('/{id}/pay', [SubscriptionController::class, 'pay']);
 });
 
 Route::get('/presets', [PresetController::class, 'index']);

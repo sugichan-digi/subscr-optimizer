@@ -113,6 +113,29 @@ class SubscriptionModel
     }
 
     /**
+     * 次回決済日を cycle に応じて +1ヶ月 / +1年 進める。
+     *
+     * @return array 更新後のサブスクデータ（API 形式）
+     */
+    public function advanceBillingDate(int $id, int $userId): array
+    {
+        $row = DB::selectOne(
+            'SELECT cycle, next_billing_date FROM subscriptions WHERE id = ? AND user_id = ? LIMIT 1',
+            [$id, $userId]
+        );
+
+        $next = new \DateTime($row->next_billing_date);
+        $next->modify($row->cycle === 'yearly' ? '+1 year' : '+1 month');
+
+        DB::update(
+            'UPDATE subscriptions SET next_billing_date = ? WHERE id = ? AND user_id = ?',
+            [$next->format('Y-m-d'), $id, $userId]
+        );
+
+        return $this->fetchAsApiArray($id);
+    }
+
+    /**
      * ID でサブスクを取得して API 配列形式で返却。
      */
     private function fetchAsApiArray(int $id): array
