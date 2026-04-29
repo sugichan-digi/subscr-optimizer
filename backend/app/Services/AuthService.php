@@ -4,12 +4,14 @@ namespace App\Services;
 
 use App\Data\LoginInput;
 use App\Data\RegisterInput;
+use App\Mail\PasswordResetMail;
 use App\Models\ResetTokenModel;
 use App\Models\SessionModel;
 use App\Models\SubscriptionModel;
 use App\Models\UserModel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class AuthService
 {
@@ -119,22 +121,21 @@ class AuthService
     }
 
     /**
-     * パスワードリセットトークン発行。
+     * パスワードリセットメール送信。
      *
      * メール未登録の場合も同一レスポンスを返す（ユーザー列挙攻撃対策）。
      *
-     * @return array{success: bool, message: string, dev_reset_token: string|null, expires_in?: string}
+     * @return array{success: bool, message: string}
      */
     public function forgotPassword(string $email): array
     {
+        $message = 'ご入力のメールアドレスに、パスワードリセット用のリンクを送信しました。メールをご確認ください。';
+
         $user = $this->userModel->findByEmail($email);
 
         if ($user === null) {
-            return [
-                'success'         => true,
-                'message'         => 'メールアドレスが登録されている場合、リセットトークンを発行しました',
-                'dev_reset_token' => null,
-            ];
+            // ユーザー列挙攻撃対策：未登録でも同じメッセージを返す
+            return ['success' => true, 'message' => $message];
         }
 
         $token = null;
@@ -149,12 +150,14 @@ class AuthService
             throw $e;
         }
 
-        return [
-            'success'         => true,
-            'message'         => 'パスワードリセット用トークンを発行しました',
-            'dev_reset_token' => $token,
-            'expires_in'      => '1時間',
-        ];
+        try {
+            Mail::send(new PasswordResetMail($token, $email));
+        } catch (\Throwable $e) {
+            Log::error('パスワードリセットメール送信失敗', ['email' => $email, 'message' => $e->getMessage()]);
+            // メール送信失敗はユーザーには隠蔽し、ログのみ記録
+        }
+
+        return ['success' => true, 'message' => $message];
     }
 
     /**
