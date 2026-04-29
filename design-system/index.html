@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design System - Subscription Optimizer</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Design System Specific Styles */
+    .ds-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+    .ds-header {
+      margin-bottom: 40px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 20px;
+    }
+    .ds-header h1 {
+      font-size: 32px;
+      color: var(--primary);
+    }
+    .ds-section {
+      margin-bottom: 60px;
+    }
+    .ds-section-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    .ds-color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+    }
+    .ds-color-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .ds-color-swatch {
+      height: 80px;
+      width: 100%;
+    }
+    .ds-color-info {
+      padding: 12px;
+      font-size: 13px;
+    }
+    .ds-color-name {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .ds-color-var {
+      color: var(--text-muted);
+      font-family: monospace;
+      font-size: 11px;
+    }
+    .ds-showcase {
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+    }
+    .ds-showcase-column {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .ds-typography-item {
+      margin-bottom: 16px;
+    }
+    .ds-typography-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ds-container">
+    <div class="ds-header">
+      <h1>Subscription Optimizer - Design System</h1>
+      <p class="text-muted">本プロジェクトのUIコンポーネント、デザイントークン、スタイルのガイドライン</p>
+    </div>
+
+    <!-- 1. Colors -->
+    <section class="ds-section">
+      <h2 class="ds-section-title">1. Color Palette (カラーパレット)</h2>
+      
+      <h3 style="margin-bottom:12px; font-size:16px;">Brand & Primary</h3>
+      <div class="ds-color-grid" style="margin-bottom:24px;">
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--primary)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Primary</div>
+            <div class="ds-color-var">var(--primary)</div>
+          </div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--primary-hover)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Primary Hover</div>
+            <div class="ds-color-var">var(--primary-hover)</div>
+          </div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--primary-light)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Primary Light</div>
+            <div class="ds-color-var">var(--primary-light)</div>
+          </div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--accent)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Accent</div>
+            <div class="ds-color-var">var(--accent)</div>
+          </div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--accent-hover)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Accent Hover</div>
+            <div class="ds-color-var">var(--accent-hover)</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom:12px; font-size:16px;">Semantic Colors</h3>
+      <div class="ds-color-grid" style="margin-bottom:24px;">
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--success)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Success</div>
+            <div class="ds-color-var">var(--success)</div>
+          </div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--success-light)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Success Light</div>
+            <div class="ds-color-var">var(--success-light)</div>
+          </div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--warning)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Warning</div>
+            <div class="ds-color-var">var(--warning)</div>
+          </div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--warning-light)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Warning Light</div>
+            <div class="ds-color-var">var(--warning-light)</div>
+          </div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--danger)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Danger</div>
+            <div class="ds-color-var">var(--danger)</div>
+          </div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--danger-light)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Danger Light</div>
+            <div class="ds-color-var">var(--danger-light)</div>
+          </div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--info)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Info</div>
+            <div class="ds-color-var">var(--info)</div>
+          </div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--info-light)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Info Light</div>
+            <div class="ds-color-var">var(--info-light)</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom:12px; font-size:16px;">Neutral & Background</h3>
+      <div class="ds-color-grid">
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--text)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Text</div>
+            <div class="ds-color-var">var(--text)</div>
+          </div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--text-muted)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Text Muted</div>
+            <div class="ds-color-var">var(--text-muted)</div>
+          </div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--border)"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Border</div>
+            <div class="ds-color-var">var(--border)</div>
+          </div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--bg); border-bottom: 1px solid var(--border);"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Background</div>
+            <div class="ds-color-var">var(--bg)</div>
+          </div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: var(--surface); border-bottom: 1px solid var(--border);"></div>
+          <div class="ds-color-info">
+            <div class="ds-color-name">Surface</div>
+            <div class="ds-color-var">var(--surface)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Typography -->
+    <section class="ds-section">
+      <h2 class="ds-section-title">2. Typography (タイポグラフィ)</h2>
+      <div class="ds-showcase ds-showcase-column">
+        <div class="ds-typography-item">
+          <div class="ds-typography-label">Font Family</div>
+          <div style="font-size: 16px;">'DM Sans', -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif</div>
+        </div>
+        <div class="ds-typography-item">
+          <div class="ds-typography-label">Heading 1 (KPI Value, Modal Title etc)</div>
+          <div style="font-size: 24px; font-weight: 700; color: var(--text);">The quick brown fox jumps over the lazy dog</div>
+        </div>
+        <div class="ds-typography-item">
+          <div class="ds-typography-label">Heading 2 (Card Title, Logo Text etc)</div>
+          <div style="font-size: 20px; font-weight: 700; color: var(--text);">The quick brown fox jumps over the lazy dog</div>
+        </div>
+        <div class="ds-typography-item">
+          <div class="ds-typography-label">Body Regular</div>
+          <div style="font-size: 14px; color: var(--text);">The quick brown fox jumps over the lazy dog. 14px Base size.</div>
+        </div>
+        <div class="ds-typography-item">
+          <div class="ds-typography-label">Body Small / Muted</div>
+          <div style="font-size: 12px; color: var(--text-muted);">The quick brown fox jumps over the lazy dog. Used for notes, subtext, billing info.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Buttons -->
+    <section class="ds-section">
+      <h2 class="ds-section-title">3. Buttons (ボタン)</h2>
+      <div class="ds-showcase">
+        <button class="btn btn-primary">Primary Button</button>
+        <button class="btn btn-secondary">Secondary Button</button>
+        <button class="btn btn-danger">Danger Button</button>
+        <button class="btn btn-outline-danger">Outline Danger</button>
+        <button class="btn btn-primary btn-sm">Small Button</button>
+      </div>
+    </section>
+
+    <!-- 4. Badges -->
+    <section class="ds-section">
+      <h2 class="ds-section-title">4. Badges (バッジ)</h2>
+      <div class="ds-showcase">
+        <span class="badge badge-category">Category</span>
+        <span class="badge badge-trial">Trial</span>
+        <span class="badge badge-success">Success</span>
+        <span class="badge badge-warning">Warning</span>
+        <span class="badge badge-danger">Danger</span>
+        <span class="badge badge-info">Info</span>
+      </div>
+    </section>
+
+    <!-- 5. Form Elements -->
+    <section class="ds-section">
+      <h2 class="ds-section-title">5. Form Elements (フォーム要素)</h2>
+      <div class="ds-showcase ds-showcase-column" style="max-width: 500px;">
+        <div class="form-group" style="width: 100%;">
+          <label>Text Input <span class="required">*</span></label>
+          <input type="text" placeholder="Enter text here...">
+        </div>
+        <div class="form-group" style="width: 100%;">
+          <label>Select Box</label>
+          <select>
+            <option>Option 1</option>
+            <option>Option 2</option>
+          </select>
+        </div>
+        <div class="form-group" style="width: 100%;">
+          <label>Textarea</label>
+          <textarea rows="3" placeholder="Enter notes..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Alerts -->
+    <section class="ds-section">
+      <h2 class="ds-section-title">6. Alerts (アラート)</h2>
+      <div class="ds-showcase ds-showcase-column">
+        <div class="alert alert-danger" style="width: 100%;">
+          <div class="alert-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
+          <div class="alert-text">
+            <strong>Danger Alert!</strong> Something went wrong.
+          </div>
+        </div>
+        <div class="alert alert-warning" style="width: 100%;">
+          <div class="alert-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          </div>
+          <div class="alert-text">
+            <strong>Warning Alert!</strong> Your trial is expiring soon.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Cards -->
+    <section class="ds-section">
+      <h2 class="ds-section-title">7. Cards (カード)</h2>
+      
+      <h3 style="margin-bottom:12px; font-size:16px;">KPI Card</h3>
+      <div class="ds-showcase" style="background: var(--bg);">
+        <div class="kpi-card" style="width: 250px;">
+          <div class="kpi-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
+          <div class="kpi-label">Total Monthly</div>
+          <div class="kpi-value">¥12,400</div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:24px; margin-bottom:12px; font-size:16px;">Subscription Card</h3>
+      <div class="ds-showcase" style="background: var(--bg);">
+        <div class="sub-card" style="width: 320px;">
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-icon-wrap">
+                <svg class="card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+              </div>
+              <div class="card-meta">
+                <div class="card-name">Netflix Premium</div>
+                <div class="card-badges">
+                  <span class="badge badge-category">Entertainment</span>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top: 8px;">
+              <div class="card-amount">¥1,980<span class="card-amount-sub">/month</span></div>
+              <div class="card-billing">Next: 2026-05-15</div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-sm btn-secondary">Edit</button>
+            <button class="btn btn-sm btn-outline-danger">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Spacing -->
+    <section class="ds-section">
+      <h2 class="ds-section-title">8. Spacing (スペース)</h2>
+      <div class="ds-showcase ds-showcase-column">
+        <div style="display: flex; gap: 16px; align-items: flex-end;">
+          <div style="text-align: center;">
+            <div style="width: var(--space-1); height: 40px; background: var(--primary); margin: 0 auto 8px;"></div>
+            <div class="ds-typography-label">--space-1 (4px)</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: var(--space-2); height: 40px; background: var(--primary); margin: 0 auto 8px;"></div>
+            <div class="ds-typography-label">--space-2 (8px)</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: var(--space-3); height: 40px; background: var(--primary); margin: 0 auto 8px;"></div>
+            <div class="ds-typography-label">--space-3 (12px)</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: var(--space-4); height: 40px; background: var(--primary); margin: 0 auto 8px;"></div>
+            <div class="ds-typography-label">--space-4 (16px)</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: var(--space-6); height: 40px; background: var(--primary); margin: 0 auto 8px;"></div>
+            <div class="ds-typography-label">--space-6 (24px)</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="width: var(--space-8); height: 40px; background: var(--primary); margin: 0 auto 8px;"></div>
+            <div class="ds-typography-label">--space-8 (32px)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. Shadows -->
+    <section class="ds-section">
+      <h2 class="ds-section-title">9. Shadows (シャドウ)</h2>
+      <div class="ds-showcase">
+        <div style="width: 120px; height: 120px; background: var(--surface); box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm);">
+          <div class="ds-typography-label">--shadow-sm</div>
+        </div>
+        <div style="width: 120px; height: 120px; background: var(--surface); box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm);">
+          <div class="ds-typography-label">--shadow</div>
+        </div>
+        <div style="width: 120px; height: 120px; background: var(--surface); box-shadow: var(--shadow-md); display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm);">
+          <div class="ds-typography-label">--shadow-md</div>
+        </div>
+        <div style="width: 120px; height: 120px; background: var(--surface); box-shadow: var(--shadow-lg); display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm);">
+          <div class="ds-typography-label">--shadow-lg</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
