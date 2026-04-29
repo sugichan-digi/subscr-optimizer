@@ -1,0 +1,80 @@
+[
+  {
+    "id": 1,
+    "name": "Netflix",
+    "emoji": "🎬",
+    "category": "動画",
+    "amount": 1490,
+    "cycle": "monthly",
+    "nextBillingDate": "2026-05-03",
+    "isTrial": false,
+    "trialEndDate": null,
+    "status": "active",
+    "notes": ""
+  },
+  {
+    "id": 2,
+    "name": "Spotify",
+    "emoji": "🎵",
+    "category": "音楽",
+    "amount": 980,
+    "cycle": "monthly",
+    "nextBillingDate": "2026-05-10",
+    "isTrial": false,
+    "trialEndDate": null,
+    "status": "active",
+    "notes": ""
+  },
+  {
+    "id": 3,
+    "name": "ChatGPT Plus",
+    "emoji": "🤖",
+    "category": "AI",
+    "amount": 3000,
+    "cycle": "monthly",
+    "nextBillingDate": "2026-04-29",
+    "isTrial": true,
+    "trialEndDate": "2026-04-29",
+    "status": "active",
+    "notes": "無料トライアル中"
+  },
+  {
+    "id": 4,
+    "name": "Adobe Creative Cloud",
+    "emoji": "🎨",
+    "category": "クリエイティブ",
+    "amount": 6480,
+    "cycle": "monthly",
+    "nextBillingDate": "2026-05-20",
+    "isTrial": false,
+    "trialEndDate": null,
+    "status": "active",
+    "notes": ""
+  },
+  {
+    "id": 5,
+    "name": "Amazon Prime Video",
+    "emoji": "📦",
+    "category": "動画",
+    "amount": 600,
+    "cycle": "monthly",
+    "nextBillingDate": "2026-05-15",
+    "isTrial": false,
+    "trialEndDate": null,
+    "status": "active",
+    "notes": ""
+  },
+  {
+    "id": 6,
+    "name": "Figma",
+    "emoji": "🖌️",
+    "category": "デザイン",
+    "amount": 1800,
+    "cycle": "monthly",
+    "nextBillingDate": "2026-05-02",
+    "isTrial": true,
+    "trialEndDate": "2026-05-03",
+    "status": "active",
+    "notes": "チーム用"
+  }
+]
