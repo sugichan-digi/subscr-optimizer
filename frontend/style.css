@@ -1,41 +1,61 @@
 /* ===== CSS Variables ===== */
 :root {
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --primary-light: #eef2ff;
-  --warning: #f59e0b;
-  --warning-light: #fffbeb;
-  --danger: #ef4444;
-  --danger-light: #fef2f2;
-  --success: #10b981;
-  --success-light: #ecfdf5;
-  --info: #3b82f6;
-  --info-light: #eff6ff;
-  --bg: #f1f5f9;
-  --surface: #ffffff;
-  --surface-2: #f8fafc;
-  --text: #1e293b;
-  --text-muted: #64748b;
-  --text-light: #94a3b8;
-  --border: #e2e8f0;
-  --border-strong: #cbd5e1;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
-  --radius: 12px;
-  --radius-sm: 8px;
-  --radius-xs: 6px;
-  --transition: 0.2s ease;
+  /* Kamii Color System */
+  --primary: #00406C;
+  --primary-hover: #05255F;
+  --primary-light: #F7F9FF;
+  --accent: #E24075;
+  --accent-hover: #C22F5A;
+  
+  --warning: #F5A623;
+  --warning-light: #FFF9F0;
+  --danger: #D0021B;
+  --danger-light: #FDF0F1;
+  --success: #35A344;
+  --success-light: #F2FAF3;
+  --info: #4A90E2;
+  --info-light: #F3F8FD;
+  
+  --bg: #F5F7FA;
+  --surface: #FFFFFF;
+  --surface-2: #F7F9FF;
+  
+  --text: #3C4247;
+  --text-muted: #7E868C;
+  --text-light: #B4B9BE;
+  
+  --border: #E0E4E8;
+  --border-strong: #C4C9D0;
+  
+  /* Shadow */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 8px 12px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 16px 24px rgba(0, 0, 0, 0.16);
+  
+  /* Radius */
+  --radius: 8px;
+  --radius-sm: 4px;
+  --radius-xs: 2px;
+  
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  
+  --transition: 0.2s ease-in-out;
 }
 
 /* ===== Reset & Base ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.5;
   color: var(--text);
   background: var(--bg);
   min-height: 100vh;
@@ -69,7 +89,8 @@ body.modal-open { overflow: hidden; }
   gap: 10px;
 }
 
-.logo-icon { font-size: 24px; }
+.logo-icon { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; color: var(--primary); }
+.logo-icon svg { display: block; width: 100%; height: 100%; }
 
 .header-actions {
   display: flex;
@@ -90,7 +111,8 @@ body.modal-open { overflow: hidden; }
   max-width: 200px;
 }
 
-.user-avatar { font-size: 16px; }
+.user-avatar { display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; }
+.user-avatar svg { display: block; width: 100%; height: 100%; }
 
 #user-display-name {
   font-size: 13px;
@@ -101,10 +123,15 @@ body.modal-open { overflow: hidden; }
 }
 
 .chevron {
-  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
   color: var(--text-muted);
   transition: transform var(--transition);
 }
+.chevron svg { display: block; width: 100%; height: 100%; }
 
 .user-menu-wrap.open .chevron { transform: rotate(180deg); }
 
@@ -198,55 +225,6 @@ body.modal-open { overflow: hidden; }
   letter-spacing: -0.5px;
 }
 
-/* ===== API Status Badge ===== */
-.api-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: 20px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  transition: all var(--transition);
-}
-
-.api-status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--text-light);
-  transition: background var(--transition);
-  animation: pulse-checking 1.2s infinite;
-}
-
-@keyframes pulse-checking {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.3; }
-}
-
-.api-status.connected {
-  background: var(--success-light);
-  border-color: #6ee7b7;
-  color: #065f46;
-}
-.api-status.connected .api-status-dot {
-  background: var(--success);
-  animation: none;
-}
-
-.api-status.offline {
-  background: var(--warning-light);
-  border-color: #fde68a;
-  color: #92400e;
-}
-.api-status.offline .api-status-dot {
-  background: var(--warning);
-  animation: none;
-}
-
 /* ===== Buttons ===== */
 .btn {
   display: inline-flex;
@@ -298,6 +276,13 @@ body.modal-open { overflow: hidden; }
 }
 .btn-outline-danger:hover { background: var(--danger-light); }
 
+.btn-outline-success {
+  background: transparent;
+  color: var(--success);
+  border: 1px solid var(--success);
+}
+.btn-outline-success:hover { background: var(--success-light); }
+
 /* ===== Main Layout ===== */
 .main {
   max-width: 1200px;
@@ -335,7 +320,8 @@ body.modal-open { overflow: hidden; }
   color: #92400e;
 }
 
-.alert-icon { font-size: 18px; flex-shrink: 0; }
+.alert-icon { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; flex-shrink: 0; }
+.alert-icon svg { display: block; width: 100%; height: 100%; }
 
 .alert-text { flex: 1; }
 
@@ -366,9 +352,10 @@ body.modal-open { overflow: hidden; }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px;
+  padding: 18px 20px 20px;
   box-shadow: var(--shadow);
   transition: transform var(--transition), box-shadow var(--transition);
+  position: relative;
 }
 
 .kpi-card:hover {
@@ -376,25 +363,41 @@ body.modal-open { overflow: hidden; }
   box-shadow: var(--shadow-md);
 }
 
-.kpi-icon { font-size: 22px; margin-bottom: 8px; }
+/* アイコンをカード右上にバッジとして配置 */
+.kpi-icon {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+}
+.kpi-icon svg { display: block; width: 18px; height: 18px; }
 
 .kpi-label {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
-  font-weight: 500;
-  margin-bottom: 4px;
+  font-weight: 600;
+  margin-bottom: 6px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
+  padding-right: 44px;
 }
 
 .kpi-value {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 700;
   color: var(--text);
   letter-spacing: -0.5px;
 }
 
 .kpi-alert-card { border-left: 3px solid var(--warning); }
+.kpi-alert-card .kpi-icon { background: var(--warning-light); color: #b45309; }
 .kpi-alert-card.has-alerts .kpi-value { color: var(--warning); }
 
 /* ===== Controls ===== */
@@ -493,7 +496,11 @@ body.modal-open { overflow: hidden; }
   padding: 5px 16px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
+.card-alert-bar .icon { width: 13px; height: 13px; vertical-align: unset; flex-shrink: 0; }
 
 .card-alert-bar.warning-bar { background: var(--warning); }
 
@@ -511,18 +518,20 @@ body.modal-open { overflow: hidden; }
   gap: 12px;
 }
 
-.card-emoji {
-  font-size: 32px;
-  line-height: 1;
+.card-icon-wrap {
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg);
+  background: var(--primary-light);
   border-radius: var(--radius-sm);
 }
+
+/* Heroicons SVG ベースクラス */
+.icon { display: inline-block; width: 1em; height: 1em; vertical-align: -0.125em; flex-shrink: 0; }
+.card-icon { display: block; width: 20px; height: 20px; color: var(--primary); }
 
 .card-meta { flex: 1; min-width: 0; }
 
@@ -610,7 +619,8 @@ body.modal-open { overflow: hidden; }
 
 .empty-state.visible { display: flex; }
 
-.empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+.empty-icon { display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; margin-bottom: 16px; opacity: 0.4; color: var(--text-muted); }
+.empty-icon svg { display: block; width: 100%; height: 100%; }
 
 .empty-title {
   font-size: 18px;
@@ -732,8 +742,6 @@ body.modal-open { overflow: hidden; }
 }
 
 .form-group textarea { resize: vertical; }
-
-.emoji-input { width: 72px; font-size: 18px; text-align: center; }
 
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 

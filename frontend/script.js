@@ -59,7 +59,6 @@ let presetServices = [...PRESET_SERVICES_FALLBACK];
 let editingId      = null;
 let activeFilter   = 'all';
 let activeSort     = 'nextBilling';
-let apiConnected   = false;
 
 /* ===== Session Helpers ===== */
 function getAuthToken()  { return localStorage.getItem('auth_token') || ''; }
@@ -97,14 +96,6 @@ const api = {
   deleteBody(path, body){ return this._req({ url: `${API_BASE}/${path}`,   method: 'DELETE', body }); },
 };
 
-/* ===== API Status Badge ===== */
-function setApiStatus(connected) {
-  apiConnected = connected;
-  const $b = $('#api-status');
-  $b.toggleClass('connected', connected).toggleClass('offline', !connected);
-  $b.find('.api-status-label').text(connected ? 'API接続中' : 'オフライン（ローカル）');
-}
-
 /* ===== LocalStorage fallback ===== */
 function localSave() { localStorage.setItem(STORAGE_KEY, JSON.stringify(subscriptions)); }
 
@@ -119,12 +110,12 @@ function localLoad() {
 function getSampleData() {
   const add = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
   return [
-    { id:1, name:'Netflix',             emoji:'🎬', category:'動画',          amount:1490, cycle:'monthly', nextBillingDate:add(6),  isTrial:false, trialEndDate:null,   status:'active', notes:'' },
-    { id:2, name:'Spotify',             emoji:'🎵', category:'音楽',          amount:980,  cycle:'monthly', nextBillingDate:add(13), isTrial:false, trialEndDate:null,   status:'active', notes:'' },
-    { id:3, name:'ChatGPT Plus',        emoji:'🤖', category:'AI',            amount:3000, cycle:'monthly', nextBillingDate:add(2),  isTrial:true,  trialEndDate:add(2), status:'active', notes:'無料トライアル中' },
-    { id:4, name:'Adobe Creative Cloud',emoji:'🎨', category:'クリエイティブ', amount:6480, cycle:'monthly', nextBillingDate:add(23), isTrial:false, trialEndDate:null,   status:'active', notes:'' },
-    { id:5, name:'Amazon Prime Video',  emoji:'📦', category:'動画',          amount:600,  cycle:'monthly', nextBillingDate:add(18), isTrial:false, trialEndDate:null,   status:'active', notes:'' },
-    { id:6, name:'Figma',               emoji:'🖌️', category:'デザイン',      amount:1800, cycle:'monthly', nextBillingDate:add(5),  isTrial:true,  trialEndDate:add(6), status:'active', notes:'チーム用' },
+    { id:1, name:'Netflix',             category:'動画',          amount:1490, cycle:'monthly', nextBillingDate:add(6),  isTrial:false, trialEndDate:null,   status:'active', notes:'' },
+    { id:2, name:'Spotify',             category:'音楽',          amount:980,  cycle:'monthly', nextBillingDate:add(13), isTrial:false, trialEndDate:null,   status:'active', notes:'' },
+    { id:3, name:'ChatGPT Plus',        category:'AI',            amount:3000, cycle:'monthly', nextBillingDate:add(2),  isTrial:true,  trialEndDate:add(2), status:'active', notes:'無料トライアル中' },
+    { id:4, name:'Adobe Creative Cloud',category:'クリエイティブ', amount:6480, cycle:'monthly', nextBillingDate:add(23), isTrial:false, trialEndDate:null,   status:'active', notes:'' },
+    { id:5, name:'Amazon Prime Video',  category:'動画',          amount:600,  cycle:'monthly', nextBillingDate:add(18), isTrial:false, trialEndDate:null,   status:'active', notes:'' },
+    { id:6, name:'Figma',               category:'デザイン',      amount:1800, cycle:'monthly', nextBillingDate:add(5),  isTrial:true,  trialEndDate:add(6), status:'active', notes:'チーム用' },
   ];
 }
 
@@ -142,13 +133,11 @@ function initApp() {
 
   const fetchSubs    = api.get('subscriptions');
   const fetchPresets = api.get('presets');
-  const healthCheck  = api.get('health');
 
-  $.when(healthCheck, fetchSubs, fetchPresets)
-    .done(function (healthRes, subsRes, presetsRes) {
+  $.when(fetchSubs, fetchPresets)
+    .done(function (subsRes, presetsRes) {
       subscriptions  = subsRes[0].data    || [];
       presetServices = presetsRes[0].data || presetServices;
-      setApiStatus(true);
       populatePresets();
       render();
     })
@@ -157,7 +146,6 @@ function initApp() {
       if (xhr && xhr.status === 401) return;
 
       console.warn('[SubsOptimizer] APIに接続できません。ローカルデータを使用します。');
-      setApiStatus(false);
       if (!localLoad() || !subscriptions.length) {
         subscriptions = getSampleData();
         localSave();
@@ -292,6 +280,7 @@ function buildCard(s) {
       </div>
       <div class="card-actions">
         ${isTrial ? `<button class="btn btn-sm btn-outline-danger" data-cancel-id="${s.id}">解約する</button>` : ''}
+        ${!isTrial ? `<button class="btn btn-sm btn-outline-success" data-pay-id="${s.id}">支払済み</button>` : ''}
         <button class="btn btn-sm btn-secondary" data-edit-id="${s.id}">編集</button>
       </div>
     </div>`;
@@ -376,7 +365,6 @@ function saveSubscription() {
     } else {
       subscriptions.push(saved);
     }
-    if (!apiConnected) localSave();
     closeModal(); render();
   };
 
@@ -395,21 +383,12 @@ function saveSubscription() {
 
   const onAlways = () => $btn.prop('disabled', false).text('保存する');
 
-  if (apiConnected) {
-    const req = editingId !== null ? api.put('subscriptions', editingId, payload) : api.post('subscriptions', payload);
-    req.done(res => onDone(res.data)).fail(onFail).always(onAlways);
-  } else {
-    const newId = editingId !== null ? editingId : (subscriptions.length ? Math.max(...subscriptions.map(s => s.id)) + 1 : 1);
-    onDone({ id: newId, ...payload }); onAlways();
-  }
+  const req = editingId !== null ? api.put('subscriptions', editingId, payload) : api.post('subscriptions', payload);
+  req.done(res => onDone(res.data)).fail(onFail).always(onAlways);
 }
 
 window.deleteSubscription = function(id) {
   if (!confirm('このサブスクリプションを削除しますか？')) return;
-  if (!apiConnected) {
-    subscriptions = subscriptions.filter(s => s.id !== id);
-    localSave(); closeModal(); render(); return;
-  }
   api.delete('subscriptions', id)
     .done(() => { subscriptions = subscriptions.filter(s => s.id !== id); closeModal(); render(); })
     .fail(() => showToast('APIエラー: 削除に失敗しました', 'danger'));
@@ -417,22 +396,27 @@ window.deleteSubscription = function(id) {
 
 window.cancelSubscription = function(id) {
   if (!confirm('このサブスクリプションを解約済みにしますか？')) return;
-  if (!apiConnected) {
-    subscriptions = subscriptions.filter(x => x.id !== id);
-    localSave(); render(); return;
-  }
   api.delete('subscriptions', id)
     .done(() => { subscriptions = subscriptions.filter(x => x.id !== id); render(); })
     .fail(() => showToast('APIエラー: 解約に失敗しました', 'danger'));
 };
 
+/* ===== Pay (次回決済日を自動更新) ===== */
+window.paySubscription = function(id) {
+  if (!confirm('支払済みとして次回決済日を更新しますか？')) return;
+  api.post(`subscriptions/${id}/pay`, {})
+    .done(res => {
+      const idx = subscriptions.findIndex(s => s.id === id);
+      if (idx !== -1) subscriptions[idx] = res.data;
+      render();
+      showToast('次回決済日を更新しました', 'success');
+    })
+    .fail(() => showToast('決済日の更新に失敗しました', 'danger'));
+};
+
 /* ===== Logout ===== */
 function logout() {
-  if (apiConnected) {
-    api.post('auth/logout', {}).always(() => { clearSession(); window.location.href = 'auth.html'; });
-  } else {
-    clearSession(); window.location.href = 'auth.html';
-  }
+  api.post('auth/logout', {}).always(() => { clearSession(); window.location.href = 'auth.html'; });
 }
 
 /* ===== Withdraw (退会) ===== */
@@ -529,6 +513,7 @@ $(function () {
   /* --- Card buttons (delegated) --- */
   $(document).on('click', '[data-edit-id]',   function () { window.openEditModal(Number($(this).data('edit-id'))); });
   $(document).on('click', '[data-cancel-id]', function () { window.cancelSubscription(Number($(this).data('cancel-id'))); });
+  $(document).on('click', '[data-pay-id]',    function () { window.paySubscription(Number($(this).data('pay-id'))); });
 
   /* --- User menu dropdown --- */
   $('#user-menu-btn').on('click', function (e) {

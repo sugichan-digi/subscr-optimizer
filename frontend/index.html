@@ -16,10 +16,6 @@
         </span>
         <span class="logo-text">SubsOptimizer</span>
       </div>
-      <div id="api-status" class="api-status" title="APIサーバー接続状態">
-        <span class="api-status-dot"></span>
-        <span class="api-status-label">確認中...</span>
-      </div>
       <div class="header-actions">
         <button id="btn-add" class="btn btn-primary">＋ サブスクを追加</button>
         <div class="user-menu-wrap" id="user-menu-wrap">
@@ -120,15 +116,6 @@
 
       <div class="modal-body">
         <div class="form-group">
-          <label for="preset-select">プリセットから選択</label>
-          <select id="preset-select">
-            <option value="">── カスタム入力 ──</option>
-          </select>
-        </div>
-
-        <div class="form-divider"><span>サービス情報</span></div>
-
-        <div class="form-group">
           <label for="field-name">サービス名 <span class="required">*</span></label>
           <input type="text" id="field-name" placeholder="例: Netflix">
         </div>
@@ -185,6 +172,14 @@
         <div class="form-group">
           <label for="field-notes">メモ</label>
           <textarea id="field-notes" placeholder="任意のメモを入力..." rows="2"></textarea>
+        </div>
+
+        <div class="form-divider"><span>プリセットから選択</span></div>
+        <div class="form-group">
+          <label for="preset-select">プリセットから選択</label>
+          <select id="preset-select">
+            <option value="">── カスタム入力 ──</option>
+          </select>
         </div>
       </div>
 
