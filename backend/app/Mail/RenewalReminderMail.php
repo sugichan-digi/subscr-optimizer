@@ -21,7 +21,7 @@ class RenewalReminderMail extends Mailable
     public function build(): static
     {
         return $this
-            ->subject("【SubsOptimizer】{$this->subscription->name} の更新が{$this->daysUntil}日後です")
+            ->subject("【サブスク管理人】{$this->subscription->name} の更新が{$this->daysUntil}日後です")
             ->view('emails.renewal-reminder')
             ->with([
                 'subscription' => $this->subscription,
