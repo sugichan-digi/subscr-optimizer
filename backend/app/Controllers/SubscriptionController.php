@@ -155,11 +155,54 @@ class SubscriptionController
         if (!$request->input('nextBillingDate')) {
             return response()->json(['error' => '次回決済日は必須です'], 400);
         }
+        $nextBillingDate = (string) $request->input('nextBillingDate');
+        if (!$this->isValidYmdDate($nextBillingDate)) {
+            return response()->json(['error' => '次回決済日は YYYY-MM-DD 形式で入力してください'], 400);
+        }
+
+        $isTrial = $request->boolean('isTrial', false);
         if (!in_array($request->input('cycle'), ['monthly', 'yearly'], true)) {
             return response()->json(['error' => 'cycleはmonthlyまたはyearlyを指定してください'], 400);
         }
 
+        if ($isTrial) {
+            if (!$request->input('trialEndDate')) {
+                return response()->json(['error' => 'トライアル終了日は必須です'], 400);
+            }
+            $trialEndDate = (string) $request->input('trialEndDate');
+            if (!$this->isValidYmdDate($trialEndDate)) {
+                return response()->json(['error' => 'トライアル終了日は YYYY-MM-DD 形式で入力してください'], 400);
+            }
+        }
+
         return null;
+    }
+
+    /**
+     * YYYY-MM-DD 形式で、かつ実在する日付かを検証する。
+     */
+    private function isValidYmdDate(string $value): bool
+    {
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+            return false;
+        }
+
+        $dt = \DateTimeImmutable::createFromFormat('Y-m-d', $value);
+        if ($dt === false) {
+            return false;
+        }
+
+        $errors = \DateTimeImmutable::getLastErrors();
+        if ($errors === false) {
+            return false;
+        }
+
+        if (($errors['warning_count'] ?? 0) > 0 || ($errors['error_count'] ?? 0) > 0) {
+            return false;
+        }
+
+        // createFromFormat が緩くパースしても、フォーマットが一致するかで最終確認する
+        return $dt->format('Y-m-d') === $value;
     }
 
     /**
