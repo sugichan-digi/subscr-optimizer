@@ -51,7 +51,7 @@
               </table>
 
               <p style="margin:20px 0 0;font-size:13px;color:#94a3b8;line-height:1.6;">
-                このメールは SubsOptimizer が自動送信しています。<br>
+                このメールは サブスク管理人 が自動送信しています。<br>
                 更新の停止・解約はアプリからご確認ください。
               </p>
             </td>
