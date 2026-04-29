@@ -56,13 +56,27 @@ function setLoading($btn, isLoading, defaultText) {
   $btn.prop('disabled', isLoading).text(isLoading ? '処理中...' : defaultText);
 }
 
+/* ===== URL パラメータからリセットトークンを読み込む ===== */
+function getUrlParam(name) {
+  return new URLSearchParams(window.location.search).get(name);
+}
+
 /* ===== jQuery Document Ready ===== */
 $(function () {
 
   // ログイン済みなら即リダイレクト
   if (isLoggedIn()) {
-    window.location.href = 'index.html';
+    window.location.href = '../dashboard/';
     return;
+  }
+
+  // メール内リンク経由のリセット: ?token=xxx が付いていればリセット画面を表示
+  const urlToken = getUrlParam('token');
+  if (urlToken) {
+    $('#reset-token').val(urlToken);
+    showView('view-reset');
+    // URLからトークンを除去（ブラウザ履歴にトークンを残さない）
+    history.replaceState(null, '', window.location.pathname);
   }
 
   /* ---------- パスワード表示トグル ---------- */
@@ -71,15 +85,6 @@ $(function () {
     const isText = $input.attr('type') === 'text';
     $input.attr('type', isText ? 'password' : 'text');
     $(this).html(isText ? EYE_SVG : EYE_SLASH_SVG);
-  });
-
-  /* ---------- トークンコピー ---------- */
-  $('#btn-copy-token').on('click', function () {
-    const token = $('#dev-token-display').text();
-    navigator.clipboard.writeText(token).then(() => {
-      $(this).text('コピー済み ✓');
-      setTimeout(() => $(this).text('コピー'), 2000);
-    });
   });
 
   /* ---------- ビュー切り替えリンク ---------- */
@@ -105,7 +110,7 @@ $(function () {
     authPost('auth/login', { email, password })
       .done(res => {
         saveSession(res.token, res.user);
-        window.location.href = 'index.html';
+        window.location.href = '../dashboard/';
       })
       .fail(xhr => {
         showError('#login-error', xhr.responseJSON?.error || 'ログインに失敗しました');
@@ -131,7 +136,7 @@ $(function () {
     authPost('auth/register', { email, password })
       .done(res => {
         saveSession(res.token, res.user);
-        window.location.href = 'index.html';
+        window.location.href = '../dashboard/';
       })
       .fail(xhr => {
         showError('#register-error', xhr.responseJSON?.error || '登録に失敗しました');
@@ -148,7 +153,7 @@ $(function () {
     authPost('auth/guest', {})
       .done(res => {
         saveSession(res.token, res.user);
-        window.location.href = 'index.html';
+        window.location.href = '../dashboard/';
       })
       .fail(xhr => {
         showError('#login-error', xhr.responseJSON?.error || 'ゲストログインに失敗しました');
@@ -164,27 +169,18 @@ $(function () {
 
     if (!email) { showError('#forgot-error', 'メールアドレスを入力してください'); return; }
 
-    setLoading($btn, true, 'リセットトークンを発行');
+    setLoading($btn, true, 'メールを送信中...');
     clearAllMessages();
 
     authPost('auth/forgot-password', { email })
       .done(res => {
-        setLoading($btn, false, 'リセットトークンを発行');
-
-        if (res.dev_reset_token) {
-          // モック: トークンを表示してリセット画面へ自動遷移
-          showView('view-reset');
-          $('#dev-token-display').text(res.dev_reset_token);
-          $('#reset-token-box').show().removeAttr('hidden');
-          $('#reset-token').val(res.dev_reset_token);
-          showSuccess('#reset-success', '【開発モード】トークンが自動入力されました。新しいパスワードを入力してください。');
-        } else {
-          showSuccess('#forgot-success', 'メールアドレスが登録されている場合、リセットトークンを発行しました。');
-        }
+        setLoading($btn, false, 'メールを送信する');
+        showSuccess('#forgot-success', res.message || 'パスワードリセット用のメールをお送りしました。メールをご確認ください。');
+        $('#forgot-email').val('');
       })
       .fail(xhr => {
-        showError('#forgot-error', xhr.responseJSON?.error || 'リセットに失敗しました');
-        setLoading($btn, false, 'リセットトークンを発行');
+        showError('#forgot-error', xhr.responseJSON?.error || 'エラーが発生しました。しばらくしてから再度お試しください。');
+        setLoading($btn, false, 'メールを送信する');
       });
   });
 
@@ -196,7 +192,7 @@ $(function () {
     const password = $('#reset-password').val();
     const confirm  = $('#reset-confirm').val();
 
-    if (!token)               { showError('#reset-error', 'リセットトークンを入力してください'); return; }
+    if (!token)               { showError('#reset-error', 'リセットリンクが無効です。メール内のリンクをご確認ください。'); return; }
     if (password.length < 8)  { showError('#reset-error', 'パスワードは8文字以上で入力してください'); return; }
     if (password !== confirm)  { showError('#reset-error', 'パスワードが一致しません'); return; }
 
@@ -209,7 +205,7 @@ $(function () {
         setTimeout(() => showView('view-login'), 2200);
       })
       .fail(xhr => {
-        showError('#reset-error', xhr.responseJSON?.error || 'リセットに失敗しました');
+        showError('#reset-error', xhr.responseJSON?.error || 'リセットリンクが無効または期限切れです。再度パスワードリセットをお試しください。');
         setLoading($btn, false, 'パスワードをリセット');
       });
   });

@@ -67,7 +67,11 @@ function clearSession()  { localStorage.removeItem('auth_token'); localStorage.r
 
 function redirectToLogin() {
   clearSession();
-  window.location.href = 'auth.html';
+  window.location.href = '../auth/';
+}
+
+function redirectToLanding() {
+  window.location.href = '../';
 }
 
 /* ===== jQuery Ajax Wrappers (Bearerトークン付き) ===== */
@@ -123,9 +127,9 @@ function getSampleData() {
 function initApp() {
   const token = getAuthToken();
 
-  // トークン未保持ならログイン画面へ
+  // トークン未保持ならLP（サービス紹介）へ
   if (!token) {
-    redirectToLogin();
+    redirectToLanding();
     return;
   }
 
@@ -346,7 +350,15 @@ function saveSubscription() {
   if (!name)                 { showValidationError('#field-name',        'サービス名を入力してください'); return; }
   if (!amount || amount < 1) { showValidationError('#field-amount',      '金額を正しく入力してください'); return; }
   if (!nextBill)             { showValidationError('#field-next-billing', '次回決済日を入力してください'); return; }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(nextBill)) {
+    showValidationError('#field-next-billing', '次回決済日は YYYY-MM-DD 形式で入力してください');
+    return;
+  }
   if (isTrial && !trialEnd)  { showValidationError('#field-trial-end',   'トライアル終了日を入力してください'); return; }
+  if (isTrial && !/^\d{4}-\d{2}-\d{2}$/.test(trialEnd)) {
+    showValidationError('#field-trial-end', 'トライアル終了日は YYYY-MM-DD 形式で入力してください');
+    return;
+  }
 
   const payload = {
     name,
@@ -416,7 +428,7 @@ window.paySubscription = function(id) {
 
 /* ===== Logout ===== */
 function logout() {
-  api.post('auth/logout', {}).always(() => { clearSession(); window.location.href = 'auth.html'; });
+  api.post('auth/logout', {}).always(() => { clearSession(); window.location.href = '../auth/'; });
 }
 
 /* ===== Withdraw (退会) ===== */
@@ -457,7 +469,7 @@ function confirmWithdraw() {
   api.deleteBody('auth/account', body)
     .done(() => {
       clearSession();
-      window.location.href = 'auth.html';
+      window.location.href = '../auth/';
     })
     .fail(xhr => {
       const msg = xhr.responseJSON?.error || '退会に失敗しました';
