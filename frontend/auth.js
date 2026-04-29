@@ -1,6 +1,6 @@
 'use strict';
 
-const API_BASE = 'http://localhost:8080/api.php';
+const API_BASE = 'http://localhost:8000/api';
 
 /* ===== API ===== */
 function authPost(path, data) {
