@@ -1,7 +1,10 @@
 'use strict';
 
-// キャッシュバスティングや全体で利用するバージョン情報
-const APP_VERSION = '2026050201';
+// キャッシュバスティング用のバージョン（日付 YYYYMMDD）
+const now = new Date();
+const APP_VERSION = now.getFullYear() + 
+  ("00" + (now.getMonth() + 1)).slice(-2) + 
+  ("00" + now.getDate()).slice(-2);
 
 // APIのベースURL
 const API_BASE = 'http://localhost:8000/api';

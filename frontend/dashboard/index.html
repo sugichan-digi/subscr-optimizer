@@ -20,7 +20,13 @@
   <meta name="theme-color" content="#00406C">
   <title>サブスク管理人 — サブスク最適化ダッシュボード</title>
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-  <script src="../common.js"></script>
+  <script>
+    (function() {
+      const n = new Date();
+      const v = n.getFullYear() + ("00" + (n.getMonth() + 1)).slice(-2) + ("00" + n.getDate()).slice(-2);
+      document.write('<script src="../common.js?v=' + v + '"><\/script>');
+    })();
+  </script>
   <script>loadStyle('style.css');</script>
 </head>
 <body>
