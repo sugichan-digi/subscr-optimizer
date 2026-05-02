@@ -492,55 +492,17 @@ function showToast(message, type = 'info') {
 
 function showValidationError(selector, msg) {
   const $el = $(selector);
-  if ($el.hasClass('date-split')) {
-    $el.css('border-color', 'var(--danger)');
-    $el.find('.date-y').focus();
-    $el.one('input', () => $el.css('border-color', ''));
-  } else {
-    $el.css('border-color', 'var(--danger)').focus();
-    $el.one('input change', () => $el.css('border-color', ''));
-  }
+  $el.css('border-color', 'var(--danger)').focus();
+  $el.one('input change', () => $el.css('border-color', ''));
   alert(msg);
 }
 
 function getDateVal(fieldId) {
-  const name = fieldId.replace('#field-', '');
-  const y = $('#date-y-' + name).val().trim();
-  const m = $('#date-m-' + name).val().trim();
-  const d = $('#date-d-' + name).val().trim();
-  if (!y && !m && !d) return '';
-  return y + '-' + m.padStart(2, '0') + '-' + d.padStart(2, '0');
+  return $(fieldId).val() || '';
 }
 
 function setDateVal(fieldId, value) {
-  const name = fieldId.replace('#field-', '');
-  if (!value) {
-    $('#date-y-' + name + ',#date-m-' + name + ',#date-d-' + name).val('');
-    return;
-  }
-  const [y, m, d] = value.split('-');
-  $('#date-y-' + name).val(y || '');
-  $('#date-m-' + name).val(m || '');
-  $('#date-d-' + name).val(d || '');
-}
-
-function setupDateSplit(name) {
-  const $y = $('#date-y-' + name);
-  const $m = $('#date-m-' + name);
-  const $d = $('#date-d-' + name);
-  $y.on('input', function () {
-    this.value = this.value.replace(/\D/g, '').slice(0, 4);
-    if (this.value.length === 4) $m.focus().select();
-  });
-  $m.on('input', function () {
-    this.value = this.value.replace(/\D/g, '').slice(0, 2);
-    if (this.value.length === 2) $d.focus().select();
-  });
-  $d.on('input', function () {
-    this.value = this.value.replace(/\D/g, '').slice(0, 2);
-  });
-  $m.on('keydown', function (e) { if (e.key === 'Backspace' && this.value === '') $y.focus(); });
-  $d.on('keydown', function (e) { if (e.key === 'Backspace' && this.value === '') $m.focus(); });
+  $(fieldId).val(value || '');
 }
 
 /* ===== jQuery Document Ready ===== */
@@ -562,9 +524,6 @@ $(function () {
   $('#field-is-trial').on('change', function () { $('#trial-end-group').toggle($(this).is(':checked')); });
   $('#btn-save').on('click', saveSubscription);
   $('#btn-delete').on('click', () => window.deleteSubscription(editingId));
-
-  setupDateSplit('next-billing');
-  setupDateSplit('trial-end');
 
   /* --- Filter / Sort --- */
   $('#filter-tabs').on('click', '.filter-tab', function () {
