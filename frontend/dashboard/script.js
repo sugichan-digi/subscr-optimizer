@@ -1,7 +1,7 @@
 'use strict';
 
 /* ===== Config ===== */
-const API_BASE = 'http://localhost:8000/api';
+// API_BASE は common.js にて定義されています
 
 /* ===== Heroicons (outline) ===== */
 const ICONS = {
