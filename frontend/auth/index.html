@@ -28,10 +28,10 @@
                 ("00" + n.getHours()).slice(-2) + 
                 ("00" + n.getMinutes()).slice(-2) + 
                 ("00" + n.getSeconds()).slice(-2);
-      document.write('<script src="../common.js?v=' + v + '"><\/script>');
+      document.write('<link rel="stylesheet" href="/auth/style.css?v=' + v + '">');
+      document.write('<script src="/common.js?v=' + v + '"><\/script>');
     })();
   </script>
-  <script>loadStyle('style.css');</script>
 </head>
 <body>
 
@@ -175,6 +175,17 @@
   </div><!-- /auth-bg -->
 
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script>loadScript('script.js');</script>
+  <script>
+    (function() {
+      const n = new Date();
+      const v = n.getFullYear() + 
+                ("00" + (n.getMonth() + 1)).slice(-2) + 
+                ("00" + n.getDate()).slice(-2) +
+                ("00" + n.getHours()).slice(-2) + 
+                ("00" + n.getMinutes()).slice(-2) + 
+                ("00" + n.getSeconds()).slice(-2);
+      document.write('<script src="/auth/script.js?v=' + v + '"><\/script>');
+    })();
+  </script>
 </body>
 </html>
