@@ -192,16 +192,13 @@ class SubscriptionController
             return false;
         }
 
+        // PHP 8.2+ では getLastErrors() はエラーなしの場合 false を返すため、
+        // createFromFormat が緩くパースした場合でも format() で最終確認する
         $errors = \DateTimeImmutable::getLastErrors();
-        if ($errors === false) {
+        if ($errors !== false && (($errors['warning_count'] ?? 0) > 0 || ($errors['error_count'] ?? 0) > 0)) {
             return false;
         }
 
-        if (($errors['warning_count'] ?? 0) > 0 || ($errors['error_count'] ?? 0) > 0) {
-            return false;
-        }
-
-        // createFromFormat が緩くパースしても、フォーマットが一致するかで最終確認する
         return $dt->format('Y-m-d') === $value;
     }
 
