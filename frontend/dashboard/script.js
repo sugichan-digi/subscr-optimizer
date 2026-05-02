@@ -53,12 +53,12 @@ const PRESET_SERVICES_FALLBACK = [
 
 const STORAGE_KEY = 'subscr-optimizer-v1';
 
-/* ===== State ===== */
-let subscriptions  = [];
-let presetServices = [...PRESET_SERVICES_FALLBACK];
-let editingId      = null;
-let activeFilter   = 'all';
-let activeSort     = 'nextBilling';
+/* ===== アプリケーションの状態 (State) ===== */
+let subscriptions  = [];             // 現在表示中のサブスク一覧
+let presetServices = [...PRESET_SERVICES_FALLBACK]; // 選択肢として表示するプリセット
+let editingId      = null;           // 編集中のアイテムID（nullなら新規作成）
+let activeFilter   = 'all';          // 現在のカテゴリフィルタ
+let activeSort     = 'nextBilling';  // 並び順
 
 /* ===== Session Helpers ===== */
 function getAuthToken()  { return localStorage.getItem('auth_token') || ''; }
@@ -74,12 +74,15 @@ function redirectToLanding() {
   window.location.href = '../';
 }
 
-/* ===== jQuery Ajax Wrappers (Bearerトークン付き) ===== */
+/* ===== API通信用共通ラッパー (Bearerトークンを自動付与) ===== */
 const api = {
+  /**
+   * 共通のAjaxリクエスト処理
+   */
   _req(opts) {
     const token = getAuthToken();
     const headers = {};
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (token) headers['Authorization'] = `Bearer ${token}`; // 認証トークンをヘッダーにセット
 
     return $.ajax({
       url:      opts.url,
@@ -90,6 +93,7 @@ const api = {
       dataType: 'json',
       timeout:  8000,
     }).fail(xhr => {
+      // 認証エラー（401）の場合はログイン画面へ強制リダイレクト
       if (xhr.status === 401) redirectToLogin();
     });
   },
@@ -123,34 +127,38 @@ function getSampleData() {
   ];
 }
 
-/* ===== Initialisation ===== */
+/* ===== アプリ起動時の初期化処理 ===== */
 function initApp() {
   const token = getAuthToken();
 
-  // トークン未保持ならLP（サービス紹介）へ
+  // 1. トークンがなければログイン画面（またはLP）へ
   if (!token) {
     redirectToLanding();
     return;
   }
 
+  // 2. ユーザー情報の表示
   renderUserMenu();
 
+  // 3. APIからデータを取得（サブスク一覧 & プリセット）
   const fetchSubs    = api.get('subscriptions');
   const fetchPresets = api.get('presets');
 
   $.when(fetchSubs, fetchPresets)
     .done(function (subsRes, presetsRes) {
+      // 成功時：データを状態にセットして描画
       subscriptions  = subsRes[0].data    || [];
       presetServices = presetsRes[0].data || presetServices;
       populatePresets();
       render();
     })
     .fail(function (xhr) {
-      // 401 は api._req が redirectToLogin() 済みなのでここでは無視
+      // 失敗時：サーバーが止まっている場合はLocalStorageから読み込む
       if (xhr && xhr.status === 401) return;
 
       console.warn('[SubsOptimizer] APIに接続できません。ローカルデータを使用します。');
       if (!localLoad() || !subscriptions.length) {
+        // それでもデータがなければサンプルを表示
         subscriptions = getSampleData();
         localSave();
       }
@@ -319,8 +327,8 @@ window.openEditModal = function(id) {
   $('#modal-title').text('サブスクを編集'); $('#btn-delete').show();
   $('#preset-select').val(''); $('#field-name').val(s.name);
   $('#field-category').val(s.category); $('#field-amount').val(s.amount); $('#field-cycle').val(s.cycle);
-  $('#field-next-billing').val(s.nextBillingDate); $('#field-is-trial').prop('checked', s.isTrial);
-  $('#field-trial-end').val(s.trialEndDate||''); $('#field-notes').val(s.notes||'');
+  setDateVal('#field-next-billing', s.nextBillingDate); $('#field-is-trial').prop('checked', s.isTrial);
+  setDateVal('#field-trial-end', s.trialEndDate||''); $('#field-notes').val(s.notes||'');
   $('#trial-end-group').toggle(s.isTrial);
   showModal();
 };
@@ -329,7 +337,8 @@ function showModal() { $('#modal-overlay').addClass('active'); $('body').addClas
 function closeModal() { $('#modal-overlay').removeClass('active'); $('body').removeClass('modal-open'); }
 
 function clearForm() {
-  $('#preset-select,#field-name,#field-amount,#field-next-billing,#field-trial-end,#field-notes').val('');
+  $('#preset-select,#field-name,#field-amount,#field-notes').val('');
+  setDateVal('#field-next-billing', ''); setDateVal('#field-trial-end', '');
   $('#field-category').val('動画'); $('#field-cycle').val('monthly');
   $('#field-is-trial').prop('checked', false); $('#trial-end-group').hide();
 }
@@ -339,27 +348,20 @@ function fillFromPreset(p) {
   $('#field-category').val(p.category); $('#field-amount').val(p.amount);
 }
 
-/* ===== CRUD ===== */
+/* ===== 保存処理 (CRUD) ===== */
 function saveSubscription() {
+  // フォームから値を取得
   const name     = $('#field-name').val().trim();
   const amount   = parseInt($('#field-amount').val(), 10);
-  const nextBill = $('#field-next-billing').val();
+  const nextBill = getDateVal('#field-next-billing');
   const isTrial  = $('#field-is-trial').is(':checked');
-  const trialEnd = $('#field-trial-end').val();
+  const trialEnd = getDateVal('#field-trial-end');
 
+  // 入力バリデーション（空チェックなど）
   if (!name)                 { showValidationError('#field-name',        'サービス名を入力してください'); return; }
   if (!amount || amount < 1) { showValidationError('#field-amount',      '金額を正しく入力してください'); return; }
   if (!nextBill)             { showValidationError('#field-next-billing', '次回決済日を入力してください'); return; }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(nextBill)) {
-    showValidationError('#field-next-billing', '次回決済日は YYYY-MM-DD 形式で入力してください');
-    return;
-  }
-  if (isTrial && !trialEnd)  { showValidationError('#field-trial-end',   'トライアル終了日を入力してください'); return; }
-  if (isTrial && !/^\d{4}-\d{2}-\d{2}$/.test(trialEnd)) {
-    showValidationError('#field-trial-end', 'トライアル終了日は YYYY-MM-DD 形式で入力してください');
-    return;
-  }
-
+  
   const payload = {
     name,
     category: $('#field-category').val(), amount,
@@ -370,6 +372,7 @@ function saveSubscription() {
 
   const $btn = $('#btn-save').prop('disabled', true).text('保存中...');
 
+  // 通信成功時の処理
   const onDone = (saved) => {
     if (editingId !== null) {
       const idx = subscriptions.findIndex(s => s.id === editingId);
@@ -380,8 +383,8 @@ function saveSubscription() {
     closeModal(); render();
   };
 
+  // 通信失敗時の処理（オフライン対応）
   const onFail = () => {
-    // ローカルフォールバック
     if (editingId !== null) {
       const idx = subscriptions.findIndex(s => s.id === editingId);
       if (idx !== -1) subscriptions[idx] = { ...subscriptions[idx], ...payload };
@@ -390,11 +393,12 @@ function saveSubscription() {
       subscriptions.push({ id: newId, ...payload });
     }
     localSave(); closeModal(); render();
-    showToast('APIエラー: ローカルに保存しました', 'warning');
+    showToast('APIエラー: ローカルに一時保存しました', 'warning');
   };
 
   const onAlways = () => $btn.prop('disabled', false).text('保存する');
 
+  // 新規作成(POST)か更新(PUT)かを判定して実行
   const req = editingId !== null ? api.put('subscriptions', editingId, payload) : api.post('subscriptions', payload);
   req.done(res => onDone(res.data)).fail(onFail).always(onAlways);
 }
@@ -488,9 +492,55 @@ function showToast(message, type = 'info') {
 
 function showValidationError(selector, msg) {
   const $el = $(selector);
-  $el.css('border-color', 'var(--danger)').focus();
-  $el.one('input change', () => $el.css('border-color', ''));
+  if ($el.hasClass('date-split')) {
+    $el.css('border-color', 'var(--danger)');
+    $el.find('.date-y').focus();
+    $el.one('input', () => $el.css('border-color', ''));
+  } else {
+    $el.css('border-color', 'var(--danger)').focus();
+    $el.one('input change', () => $el.css('border-color', ''));
+  }
   alert(msg);
+}
+
+function getDateVal(fieldId) {
+  const name = fieldId.replace('#field-', '');
+  const y = $('#date-y-' + name).val().trim();
+  const m = $('#date-m-' + name).val().trim();
+  const d = $('#date-d-' + name).val().trim();
+  if (!y && !m && !d) return '';
+  return y + '-' + m.padStart(2, '0') + '-' + d.padStart(2, '0');
+}
+
+function setDateVal(fieldId, value) {
+  const name = fieldId.replace('#field-', '');
+  if (!value) {
+    $('#date-y-' + name + ',#date-m-' + name + ',#date-d-' + name).val('');
+    return;
+  }
+  const [y, m, d] = value.split('-');
+  $('#date-y-' + name).val(y || '');
+  $('#date-m-' + name).val(m || '');
+  $('#date-d-' + name).val(d || '');
+}
+
+function setupDateSplit(name) {
+  const $y = $('#date-y-' + name);
+  const $m = $('#date-m-' + name);
+  const $d = $('#date-d-' + name);
+  $y.on('input', function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 4);
+    if (this.value.length === 4) $m.focus().select();
+  });
+  $m.on('input', function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 2);
+    if (this.value.length === 2) $d.focus().select();
+  });
+  $d.on('input', function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 2);
+  });
+  $m.on('keydown', function (e) { if (e.key === 'Backspace' && this.value === '') $y.focus(); });
+  $d.on('keydown', function (e) { if (e.key === 'Backspace' && this.value === '') $m.focus(); });
 }
 
 /* ===== jQuery Document Ready ===== */
@@ -512,6 +562,9 @@ $(function () {
   $('#field-is-trial').on('change', function () { $('#trial-end-group').toggle($(this).is(':checked')); });
   $('#btn-save').on('click', saveSubscription);
   $('#btn-delete').on('click', () => window.deleteSubscription(editingId));
+
+  setupDateSplit('next-billing');
+  setupDateSplit('trial-end');
 
   /* --- Filter / Sort --- */
   $('#filter-tabs').on('click', '.filter-tab', function () {
