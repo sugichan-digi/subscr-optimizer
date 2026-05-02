@@ -28,7 +28,12 @@
   <script>
     (function() {
       const n = new Date();
-      const v = n.getFullYear() + ("00" + (n.getMonth() + 1)).slice(-2) + ("00" + n.getDate()).slice(-2);
+      const v = n.getFullYear() + 
+                ("00" + (n.getMonth() + 1)).slice(-2) + 
+                ("00" + n.getDate()).slice(-2) +
+                ("00" + n.getHours()).slice(-2) + 
+                ("00" + n.getMinutes()).slice(-2) + 
+                ("00" + n.getSeconds()).slice(-2);
       document.write('<script src="common.js?v=' + v + '"><\/script>');
     })();
   </script>

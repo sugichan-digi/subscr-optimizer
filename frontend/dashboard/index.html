@@ -23,7 +23,12 @@
   <script>
     (function() {
       const n = new Date();
-      const v = n.getFullYear() + ("00" + (n.getMonth() + 1)).slice(-2) + ("00" + n.getDate()).slice(-2);
+      const v = n.getFullYear() + 
+                ("00" + (n.getMonth() + 1)).slice(-2) + 
+                ("00" + n.getDate()).slice(-2) +
+                ("00" + n.getHours()).slice(-2) + 
+                ("00" + n.getMinutes()).slice(-2) + 
+                ("00" + n.getSeconds()).slice(-2);
       document.write('<script src="../common.js?v=' + v + '"><\/script>');
     })();
   </script>
@@ -174,8 +179,14 @@
             <input type="number" id="field-amount" placeholder="1490" min="1">
           </div>
           <div class="form-group">
-            <label for="field-next-billing">次回決済日 <span class="required">*</span></label>
-            <input type="date" id="field-next-billing">
+            <label for="date-y-next-billing">次回決済日 <span class="required">*</span></label>
+            <div class="date-split" id="field-next-billing">
+              <input type="text" class="date-y" id="date-y-next-billing" maxlength="4" placeholder="YYYY" inputmode="numeric" autocomplete="off">
+              <span class="date-sep">-</span>
+              <input type="text" class="date-m" id="date-m-next-billing" maxlength="2" placeholder="MM" inputmode="numeric" autocomplete="off">
+              <span class="date-sep">-</span>
+              <input type="text" class="date-d" id="date-d-next-billing" maxlength="2" placeholder="DD" inputmode="numeric" autocomplete="off">
+            </div>
           </div>
         </div>
 
@@ -188,8 +199,14 @@
         </div>
 
         <div class="form-group" id="trial-end-group">
-          <label for="field-trial-end">トライアル終了日</label>
-          <input type="date" id="field-trial-end">
+          <label for="date-y-trial-end">トライアル終了日</label>
+          <div class="date-split" id="field-trial-end">
+            <input type="text" class="date-y" id="date-y-trial-end" maxlength="4" placeholder="YYYY" inputmode="numeric" autocomplete="off">
+            <span class="date-sep">-</span>
+            <input type="text" class="date-m" id="date-m-trial-end" maxlength="2" placeholder="MM" inputmode="numeric" autocomplete="off">
+            <span class="date-sep">-</span>
+            <input type="text" class="date-d" id="date-d-trial-end" maxlength="2" placeholder="DD" inputmode="numeric" autocomplete="off">
+          </div>
         </div>
 
         <div class="form-group">
