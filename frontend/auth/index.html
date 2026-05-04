@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,44 +19,47 @@
   <meta name="twitter:description" content="サブスク管理人のログインページ">
   <meta name="theme-color" content="#00406C">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z20JH06KEG"></script>
+  <!-- Google Tag Manager -->
+  <script>(function (w, d, s, l, i) {
+      w[l] = w[l] || []; w[l].push({
+        'gtm.start':
+          new Date().getTime(), event: 'gtm.js'
+      }); var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+          'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-KKGXC37P');</script>
+  <!-- End Google Tag Manager -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-Z20JH06KEG');
-  </script>
-  <script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "wkxpb13fa0");
-  </script>
-  <script>
-    (function() {
+    (function () {
       const n = new Date();
-      const v = n.getFullYear() + 
-                ("00" + (n.getMonth() + 1)).slice(-2) + 
-                ("00" + n.getDate()).slice(-2) +
-                ("00" + n.getHours()).slice(-2) + 
-                ("00" + n.getMinutes()).slice(-2) + 
-                ("00" + n.getSeconds()).slice(-2);
+      const v = n.getFullYear() +
+        ("00" + (n.getMonth() + 1)).slice(-2) +
+        ("00" + n.getDate()).slice(-2) +
+        ("00" + n.getHours()).slice(-2) +
+        ("00" + n.getMinutes()).slice(-2) +
+        ("00" + n.getSeconds()).slice(-2);
       document.write('<link rel="stylesheet" href="/auth/style.css?v=' + v + '">');
       document.write('<script src="/common.js?v=' + v + '"><\/script>');
     })();
   </script>
 </head>
-<body>
 
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KKGXC37P" height="0" width="0"
+      style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
   <div class="auth-bg">
     <div class="auth-wrapper">
 
       <!-- Logo -->
       <div class="auth-logo">
         <span class="auth-logo-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5z" />
+          </svg>
         </span>
         <span class="auth-logo-text">サブスク管理人</span>
       </div>
@@ -76,7 +80,13 @@
             <label for="login-password">パスワード</label>
             <div class="password-wrap">
               <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
-              <button type="button" class="toggle-pw" data-target="login-password" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg></button>
+              <button type="button" class="toggle-pw" data-target="login-password" tabindex="-1"><svg
+                  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg></button>
             </div>
           </div>
           <button type="submit" class="btn-auth btn-auth-primary" id="btn-login">ログイン</button>
@@ -84,7 +94,11 @@
 
         <div class="auth-divider"><span>または</span></div>
         <button class="btn-auth btn-auth-guest" id="btn-guest">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+          </svg>
           ゲストとして始める
         </button>
 
@@ -111,14 +125,26 @@
             <label for="reg-password">パスワード <span class="field-hint">（8文字以上）</span></label>
             <div class="password-wrap">
               <input type="password" id="reg-password" placeholder="••••••••" autocomplete="new-password">
-              <button type="button" class="toggle-pw" data-target="reg-password" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg></button>
+              <button type="button" class="toggle-pw" data-target="reg-password" tabindex="-1"><svg
+                  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg></button>
             </div>
           </div>
           <div class="field-group">
             <label for="reg-confirm">パスワード（確認）</label>
             <div class="password-wrap">
               <input type="password" id="reg-confirm" placeholder="••••••••" autocomplete="new-password">
-              <button type="button" class="toggle-pw" data-target="reg-confirm" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg></button>
+              <button type="button" class="toggle-pw" data-target="reg-confirm" tabindex="-1"><svg
+                  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg></button>
             </div>
           </div>
           <button type="submit" class="btn-auth btn-auth-primary" id="btn-register">アカウントを作成</button>
@@ -134,7 +160,7 @@
         <h1 class="auth-title">パスワードを忘れた</h1>
         <p class="auth-sub">登録済みのメールアドレスを入力してください</p>
 
-        <div id="forgot-error"   class="auth-msg auth-msg-error"></div>
+        <div id="forgot-error" class="auth-msg auth-msg-error"></div>
         <div id="forgot-success" class="auth-msg auth-msg-success"></div>
 
         <form id="form-forgot" novalidate>
@@ -155,7 +181,7 @@
         <h1 class="auth-title">パスワードをリセット</h1>
         <p class="auth-sub">メールに記載のリンクから自動的に遷移しました。新しいパスワードを入力してください。</p>
 
-        <div id="reset-error"   class="auth-msg auth-msg-error"></div>
+        <div id="reset-error" class="auth-msg auth-msg-error"></div>
         <div id="reset-success" class="auth-msg auth-msg-success"></div>
 
         <form id="form-reset" novalidate>
@@ -164,14 +190,26 @@
             <label for="reset-password">新しいパスワード <span class="field-hint">（8文字以上）</span></label>
             <div class="password-wrap">
               <input type="password" id="reset-password" placeholder="••••••••" autocomplete="new-password">
-              <button type="button" class="toggle-pw" data-target="reset-password" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg></button>
+              <button type="button" class="toggle-pw" data-target="reset-password" tabindex="-1"><svg
+                  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg></button>
             </div>
           </div>
           <div class="field-group">
             <label for="reset-confirm">パスワード（確認）</label>
             <div class="password-wrap">
               <input type="password" id="reset-confirm" placeholder="••••••••" autocomplete="new-password">
-              <button type="button" class="toggle-pw" data-target="reset-confirm" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg></button>
+              <button type="button" class="toggle-pw" data-target="reset-confirm" tabindex="-1"><svg
+                  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg></button>
             </div>
           </div>
           <button type="submit" class="btn-auth btn-auth-primary" id="btn-reset">パスワードをリセット</button>
@@ -183,23 +221,27 @@
       </div>
 
       <div style="text-align: center; margin-top: 32px;">
-        <a href="../" style="color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 600; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">← トップページに戻る</a>
+        <a href="../"
+          style="color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 600; transition: color 0.2s;"
+          onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">←
+          トップページに戻る</a>
       </div>
     </div><!-- /auth-wrapper -->
   </div><!-- /auth-bg -->
 
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script>
-    (function() {
+    (function () {
       const n = new Date();
-      const v = n.getFullYear() + 
-                ("00" + (n.getMonth() + 1)).slice(-2) + 
-                ("00" + n.getDate()).slice(-2) +
-                ("00" + n.getHours()).slice(-2) + 
-                ("00" + n.getMinutes()).slice(-2) + 
-                ("00" + n.getSeconds()).slice(-2);
+      const v = n.getFullYear() +
+        ("00" + (n.getMonth() + 1)).slice(-2) +
+        ("00" + n.getDate()).slice(-2) +
+        ("00" + n.getHours()).slice(-2) +
+        ("00" + n.getMinutes()).slice(-2) +
+        ("00" + n.getSeconds()).slice(-2);
       document.write('<script src="/auth/script.js?v=' + v + '"><\/script>');
     })();
   </script>
 </body>
+
 </html>
